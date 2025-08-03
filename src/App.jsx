@@ -10,7 +10,7 @@ function App() {
         <div>
             <Button name="Crop"/>
             <Button name="Blur"/>
-            <Button name="Brightness"/>
+            <Button name="Contrast"/>
             <Button name="Rotate"/>
         </div>
 
