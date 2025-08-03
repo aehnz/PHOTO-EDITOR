@@ -4,6 +4,8 @@ import io
 def rotate(image_bytes: bytes, degrees: int = 90) -> bytes:
 
     try:
+        # Normalize degrees to [0, 360)
+        degrees = degrees % 360
         # Use a BytesIO object to treat the bytes as a file.
         with io.BytesIO(image_bytes) as byte_stream:
             img = Image.open(byte_stream)
