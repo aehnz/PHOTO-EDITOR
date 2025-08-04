@@ -18,17 +18,15 @@
   margin: 10vh auto;
 }
 
+/*for pc view*/
 @media(min-width: 400px){
   #root{
     max-width: 1280px;
-    margin: 1.5rem auto;
+    margin: auto auto;
     padding: 2rem;
     text-align: center;
   }
 
-  .Upload-btn{
-
-  }
 }
 
 .uploaded-image {
@@ -37,3 +35,5 @@
   display: block;
   margin: 1rem auto;
 }
+
+

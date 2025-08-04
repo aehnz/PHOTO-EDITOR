@@ -27,18 +27,18 @@ function App() {
   return (
     <>
         <div>
-            <Button name="Crop"/>
-            <Button name="Blur"/>
-            <Button name="Contrast"/>
-            <Button name="Rotate"/>
-        </div>
-
-        <div>
             {hasImage && imageSrc && (<img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>)}
         </div>
 
         <div className="input-wrapper">
             {!hasImage ? <InputFile onImageUpload={handleChange}/> : null}
+        </div>
+
+        <div>
+            <Button name="Crop"/>
+            <Button name="Blur"/>
+            <Button name="Contrast"/>
+            <Button name="Rotate"/>
         </div>
 
     </>
