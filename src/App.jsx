@@ -22,17 +22,23 @@ function App() {
         }
     }
 
-
+    function removeImage(){
+        setImageSrc(null);
+        setHasImage(false);
+    }
 
   return (
     <>
-        <div>
+
+        <div className="image-wrapper">
             {hasImage && imageSrc && (<img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>)}
+            {hasImage && imageSrc && (<button type="button" id="close" onClick={removeImage}>X</button>)}
         </div>
 
         <div className="input-wrapper">
             {!hasImage ? <InputFile onImageUpload={handleChange}/> : null}
         </div>
+
 
         <div>
             <Button name="Crop"/>

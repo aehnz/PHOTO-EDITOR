@@ -18,6 +18,19 @@
   margin: 10vh auto;
 }
 
+#close{
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.image-wrapper{
+  position: relative;
+}
+
 .uploaded-image{
   max-width: 70vw;
   max-height: 70vh;
