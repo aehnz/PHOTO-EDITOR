@@ -6,9 +6,9 @@ def blur(imageBytes: bytes, radius: int = 2) -> bytes:
         with io.BytesIO(imageBytes) as inputStream:
             img = Image.open(inputStream)
             imageFormat = img.format if img.format else 'PNG'
-            blurred_img = img.filter(ImageFilter.GaussianBlur(radius))
+            blurredIMG = img.filter(ImageFilter.GaussianBlur(radius))
             outputStream = io.BytesIO()
-            blurred_img.save(outputStream, format=imageFormat)
+            blurredIMG.save(outputStream, format=imageFormat)
             return outputStream.getvalue()
     except Exception as e:
         print(f"An error occurred during image blurring: {e}")
