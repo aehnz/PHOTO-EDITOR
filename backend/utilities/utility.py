@@ -61,13 +61,11 @@ OR
   "right": 30,
   "bottom": 40
 }}
-
 OR
 {{
   "action": "blur",
   "radius": 10
 }}
-
 If the command is invalid, unrelated, or not supported, return:
 {{ "action": "unknown" }}
 
