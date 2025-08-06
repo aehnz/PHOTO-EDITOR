@@ -2,7 +2,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
-# Import routes after app is created to avoid circular imports
+# Importing routes 
 from backend.routes import voiceCommand
 
 if __name__ == "__main__":
