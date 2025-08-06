@@ -40,28 +40,28 @@ All numbers must be returned as numbers, not strings.
 The user said: "{user_input}"
 
 Return a JSON object like:
-{{
+{
   "action": "rotate",
   "angle": 45
-}}
+}
 OR
-{{
+{
   "action": "brightness",
   "level": 1.2
-}}
-OR 
-{{
+}
+OR
+{
   "action": "crop",
   "left": 10,
   "top": 20,
   "right": 30,
   "bottom": 40
-}}
+}
 OR
-{{
+{
   "action": "blur",
   "radius": 10
-}}
+}
 If the command is invalid, unrelated, or not supported, return:
 {{ "action": "unknown" }}
 
