@@ -1,17 +1,245 @@
 #root {
   max-width: 1280px;
   margin: 2rem auto;
-  padding: 2rem;
+  padding: 2rem 2rem 6rem 2rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+/* Floating orbs background */
+#root::before,
+#root::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Blue orb */
+#root::before {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #4f46e5, #1e40af);
+  left: 20%;
+  animation: floatUp 8s infinite linear;
+  box-shadow: 
+    0 0 20px rgba(79, 70, 229, 0.6),
+    0 0 40px rgba(79, 70, 229, 0.4),
+    0 0 60px rgba(79, 70, 229, 0.2);
+}
+
+/* Red orb */
+#root::after {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, #ef4444, #dc2626);
+  right: 25%;
+  animation: floatUp 10s infinite linear;
+  animation-delay: -3s;
+  box-shadow: 
+    0 0 15px rgba(239, 68, 68, 0.6),
+    0 0 30px rgba(239, 68, 68, 0.4),
+    0 0 45px rgba(239, 68, 68, 0.2);
+}
+
+/* Multiple orbs using additional pseudo-elements */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.orb1 {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #3b82f6, #1d4ed8);
+  left: 60%;
+  animation: floatUp 12s infinite linear;
+  animation-delay: -5s;
+  box-shadow: 
+    0 0 25px rgba(59, 130, 246, 0.7),
+    0 0 50px rgba(59, 130, 246, 0.5),
+    0 0 75px rgba(59, 130, 246, 0.3);
+}
+
+.orb2 {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, #f87171, #b91c1c);
+  left: 80%;
+  animation: floatUp 9s infinite linear;
+  animation-delay: -7s;
+  box-shadow: 
+    0 0 18px rgba(248, 113, 113, 0.7),
+    0 0 36px rgba(248, 113, 113, 0.5),
+    0 0 54px rgba(248, 113, 113, 0.3);
+}
+
+.orb3 {
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle, #6366f1, #4338ca);
+  left: 10%;
+  animation: floatUp 11s infinite linear;
+  animation-delay: -2s;
+  box-shadow: 
+    0 0 12px rgba(99, 102, 241, 0.7),
+    0 0 24px rgba(99, 102, 241, 0.5),
+    0 0 36px rgba(99, 102, 241, 0.3);
+}
+
+.orb4 {
+  width: 45px;
+  height: 45px;
+  background: radial-gradient(circle, #10b981, #047857);
+  left: 30%;
+  animation: floatUp 14s infinite linear;
+  animation-delay: -4s;
+  box-shadow: 
+    0 0 15px rgba(16, 185, 129, 0.7),
+    0 0 30px rgba(16, 185, 129, 0.5),
+    0 0 45px rgba(16, 185, 129, 0.3);
+}
+
+.orb5 {
+  width: 55px;
+  height: 55px;
+  background: radial-gradient(circle, #f59e0b, #d97706);
+  left: 45%;
+  animation: floatUp 13s infinite linear;
+  animation-delay: -6s;
+  box-shadow: 
+    0 0 20px rgba(245, 158, 11, 0.7),
+    0 0 40px rgba(245, 158, 11, 0.5),
+    0 0 60px rgba(245, 158, 11, 0.3);
+}
+
+.orb6 {
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #ec4899, #be185d);
+  left: 75%;
+  animation: floatUp 10s infinite linear;
+  animation-delay: -8s;
+  box-shadow: 
+    0 0 10px rgba(236, 72, 153, 0.7),
+    0 0 20px rgba(236, 72, 153, 0.5),
+    0 0 30px rgba(236, 72, 153, 0.3);
+}
+
+.orb7 {
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, #8b5cf6, #7c3aed);
+  left: 5%;
+  animation: floatUp 15s infinite linear;
+  animation-delay: -1s;
+  box-shadow: 
+    0 0 22px rgba(139, 92, 246, 0.7),
+    0 0 44px rgba(139, 92, 246, 0.5),
+    0 0 66px rgba(139, 92, 246, 0.3);
+}
+
+.orb8 {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, #06b6d4, #0891b2);
+  left: 90%;
+  animation: floatUp 16s infinite linear;
+  animation-delay: -9s;
+  box-shadow: 
+    0 0 14px rgba(6, 182, 212, 0.7),
+    0 0 28px rgba(6, 182, 212, 0.5),
+    0 0 42px rgba(6, 182, 212, 0.3);
+}
+
+/* Floating animation */
+@keyframes floatUp {
+  0% {
+    transform: translateY(calc(100vh + 100px)) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-200px) translateX(20px);
+    opacity: 0;
+  }
 }
 
 .button{
-  background-color: #256ed4;
+  background-color: #6366f1;
+  color: white;
   border-radius: 5px;
   padding: 0.75rem 1.5rem;
-  margin: 0.5rem 0.5rem;
+  margin: 0;
   font-size: 1rem;
   min-width: 8rem;
+  position: relative;
+  overflow: visible;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    #8a2be2, #4b0082, #0000ff, #00ff00, 
+    #ffff00, #ffa500, #ff0000, #8a2be2, 
+    #4b0082, #0000ff, #00ff00, #ffff00);
+  background-size: 300% 100%;
+  border-radius: 5px;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(1.1);
+  transition: opacity 0.3s ease;
+}
+
+.button:hover::before {
+  opacity: 0.8;
+  animation: moveGradient 3s linear infinite;
+}
+
+/* Moving gradient animation */
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Fixed button toolbar at bottom */
+.btn {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  z-index: 1000;
+  border-top: 1px solid rgba(99, 102, 241, 0.3);
+  max-height: 6rem;
 }
 
 .Upload-btn {
@@ -36,18 +264,64 @@
   max-height: 70vh;
 }
 
+/* Sparkling star animation */
+@keyframes sparkle {
+  0% {
+    transform: scale(0.5) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes popRight {
+  0% {
+    transform: translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(30px) scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes popLeft {
+  0% {
+    transform: translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-30px) scale(2) rotate(-360deg);
+    opacity: 0;
+  }
+}
+
+
 /*for pc view*/
 @media(min-width: 400px){
   #root{
     max-width: 1280px;
     margin: auto auto;
-    padding: 2rem;
+    padding: 2rem 2rem 6rem 2rem;
     text-align: center;
+    min-height: 100vh;
   }
 
   .uploaded-image{
     max-width: 75vw;
     max-height: 75vh;
+  }
+
+  .button:hover {
+    background-color: #ffffff;
+    color: #6366f1;
+    cursor: pointer;
   }
 
 }

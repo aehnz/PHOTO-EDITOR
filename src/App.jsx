@@ -29,6 +29,15 @@ function App() {
 
   return (
     <>
+        {/* Floating orbs */}
+        <div className="orb orb1"></div>
+        <div className="orb orb2"></div>
+        <div className="orb orb3"></div>
+        <div className="orb orb4"></div>
+        <div className="orb orb5"></div>
+        <div className="orb orb6"></div>
+        <div className="orb orb7"></div>
+        <div className="orb orb8"></div>
 
         <div className="image-wrapper">
             {hasImage && imageSrc && (<img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>)}
@@ -39,8 +48,7 @@ function App() {
             {!hasImage ? <InputFile onImageUpload={handleChange}/> : null}
         </div>
 
-
-        <div>
+        <div className="btn">
             <Button name="Crop"/>
             <Button name="Blur"/>
             <Button name="Contrast"/>
