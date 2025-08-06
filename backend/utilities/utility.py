@@ -44,16 +44,12 @@ Return a JSON object like:
   "action": "rotate",
   "angle": 45
 }}
-
 OR
-
 {{
   "action": "brightness",
   "level": 1.2
 }}
-
 OR 
-
 {{
   "action": "crop",
   "left": 10,
