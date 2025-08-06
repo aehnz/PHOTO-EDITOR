@@ -1,5 +1,4 @@
-from flask import request, jsonify, send_file
-from backend.app import app
+from flask import Blueprint, request, jsonify, send_file
 from backend.utilities.utility import parse_command_with_gemini
 from backend.functions.rotate import rotate
 from backend.functions.crop import crop
@@ -8,8 +7,10 @@ from backend.functions.brightness import brightness
 import io
 
 
+voice_command_bp = Blueprint('voice_command_bp', __name__)
 
-@app.route('/voice-command', methods=['POST'])
+
+@voice_command_bp.route('/voice-command', methods=['POST'])
 def voice_command():
 
     commandText = request.form.get("command", "")
@@ -23,7 +24,7 @@ def voice_command():
 
     action = parsedAction.get("action")
     if not action or action == "unknown":
-        return jsonify({"error": "Unknown or unsupported command"}), 400
+        return jsonify({"error": "Unknown command", "geminiParsed": parsedAction}), 400
 
 
     if action == "rotate":
@@ -45,7 +46,7 @@ def voice_command():
         level = parsedAction.get("level", 1.0)
         result = brightness(imageBytes, level)
     else:
-        return jsonify({"error": "Unknown or unsupported command"}), 400
+        return jsonify({"error": "Unknown command", "geminiParsed": parsedAction}), 400
 
     if not result:
         return jsonify({"error": "Image processing failed"}), 500
