@@ -7,6 +7,17 @@ function App() {
 
     let [hasImage,setHasImage] = useState(false);
     let [imageSrc, setImageSrc] = useState(null);
+    let [cropMode, setCropMode] = useState(false);
+    let [cropArea, setCropArea] = useState({
+        x: 50,
+        y: 50,
+        width: 200,
+        height: 150
+    });
+    let [isDragging, setIsDragging] = useState(false);
+    let [isResizing, setIsResizing] = useState(false);
+    let [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    let [resizeHandle, setResizeHandle] = useState(null);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -25,6 +36,140 @@ function App() {
     function removeImage(){
         setImageSrc(null);
         setHasImage(false);
+        setCropMode(false);
+    }
+
+    function enableCropMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before cropping!");
+            return;
+        }
+        setCropMode(true);
+    }
+
+    function handleEditAction(action) {
+        if(!hasImage) {
+            alert(`Please upload an image first before applying ${action.toLowerCase()}!`);
+            return;
+        }
+        // Placeholder for future edit functionality
+        console.log(`${action} functionality will be implemented here`);
+    }
+
+    function cancelCrop(){
+        setCropMode(false);
+    }
+
+    // Drag and resize handlers
+    const handleMouseDown = (e, action, handle = null) => {
+        e.preventDefault();
+        const rect = e.currentTarget.closest('.image-container').getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        setDragStart({ x, y });
+        
+        if (action === 'drag') {
+            setIsDragging(true);
+        } else if (action === 'resize') {
+            setIsResizing(true);
+            setResizeHandle(handle);
+        }
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging && !isResizing) return;
+        
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const deltaX = x - dragStart.x;
+        const deltaY = y - dragStart.y;
+        
+        if (isDragging) {
+            setCropArea(prev => ({
+                ...prev,
+                x: Math.max(0, Math.min(prev.x + deltaX, rect.width - prev.width)),
+                y: Math.max(0, Math.min(prev.y + deltaY, rect.height - prev.height))
+            }));
+            setDragStart({ x, y });
+        } else if (isResizing && resizeHandle) {
+            setCropArea(prev => {
+                let newArea = { ...prev };
+                
+                switch (resizeHandle) {
+                    case 'nw':
+                        newArea.width = Math.max(50, prev.width - deltaX);
+                        newArea.height = Math.max(50, prev.height - deltaY);
+                        newArea.x = Math.max(0, prev.x + deltaX);
+                        newArea.y = Math.max(0, prev.y + deltaY);
+                        break;
+                    case 'ne':
+                        newArea.width = Math.max(50, prev.width + deltaX);
+                        newArea.height = Math.max(50, prev.height - deltaY);
+                        newArea.y = Math.max(0, prev.y + deltaY);
+                        break;
+                    case 'sw':
+                        newArea.width = Math.max(50, prev.width - deltaX);
+                        newArea.height = Math.max(50, prev.height + deltaY);
+                        newArea.x = Math.max(0, prev.x + deltaX);
+                        break;
+                    case 'se':
+                        newArea.width = Math.max(50, prev.width + deltaX);
+                        newArea.height = Math.max(50, prev.height + deltaY);
+                        break;
+                }
+                
+                // Ensure crop area stays within bounds
+                if (newArea.x + newArea.width > rect.width) {
+                    newArea.width = rect.width - newArea.x;
+                }
+                if (newArea.y + newArea.height > rect.height) {
+                    newArea.height = rect.height - newArea.y;
+                }
+                
+                return newArea;
+            });
+            setDragStart({ x, y });
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        setIsResizing(false);
+        setResizeHandle(null);
+    };
+
+    function saveCrop(){
+        // Create a canvas to crop the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
+        
+        // Get the actual display dimensions and scale
+        const displayWidth = img.clientWidth;
+        const displayHeight = img.clientHeight;
+        const scaleX = img.naturalWidth / displayWidth;
+        const scaleY = img.naturalHeight / displayHeight;
+        
+        // Set canvas size to crop area
+        canvas.width = cropArea.width * scaleX;
+        canvas.height = cropArea.height * scaleY;
+        
+        // Draw cropped portion
+        ctx.drawImage(
+            img,
+            cropArea.x * scaleX, cropArea.y * scaleY,
+            cropArea.width * scaleX, cropArea.height * scaleY,
+            0, 0,
+            canvas.width, canvas.height
+        );
+        
+        // Convert canvas to data URL and update image
+        const croppedImageData = canvas.toDataURL();
+        setImageSrc(croppedImageData);
+        setCropMode(false);
     }
 
   return (
@@ -40,7 +185,57 @@ function App() {
         <div className="orb orb8"></div>
 
         <div className="image-wrapper">
-            {hasImage && imageSrc && (<img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>)}
+            {hasImage && imageSrc && (
+                <div 
+                    className={`image-container ${(isDragging || isResizing) ? 'no-select' : ''}`}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                >
+                    <img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>
+                    {cropMode && (
+                        <div 
+                            className={`crop-box ${isDragging ? 'dragging' : ''} ${isResizing ? 'resizing' : ''}`}
+                            style={{
+                                left: cropArea.x,
+                                top: cropArea.y,
+                                width: cropArea.width,
+                                height: cropArea.height
+                            }}
+                            onMouseDown={(e) => handleMouseDown(e, 'drag')}
+                        >
+                            <div 
+                                className="crop-handle crop-handle-nw"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    handleMouseDown(e, 'resize', 'nw');
+                                }}
+                            ></div>
+                            <div 
+                                className="crop-handle crop-handle-ne"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    handleMouseDown(e, 'resize', 'ne');
+                                }}
+                            ></div>
+                            <div 
+                                className="crop-handle crop-handle-sw"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    handleMouseDown(e, 'resize', 'sw');
+                                }}
+                            ></div>
+                            <div 
+                                className="crop-handle crop-handle-se"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    handleMouseDown(e, 'resize', 'se');
+                                }}
+                            ></div>
+                        </div>
+                    )}
+                </div>
+            )}
             {hasImage && imageSrc && (<button type="button" id="close" onClick={removeImage}>X</button>)}
         </div>
 
@@ -49,10 +244,19 @@ function App() {
         </div>
 
         <div className="btn">
-            <Button name="Crop"/>
-            <Button name="Blur"/>
-            <Button name="Contrast"/>
-            <Button name="Rotate"/>
+            {!cropMode ? (
+                <>
+                    <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
+                    <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
+                    <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
+                    <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
+                </>
+            ) : (
+                <>
+                    <Button name="Save Crop" onClick={saveCrop}/>
+                    <Button name="Cancel" onClick={cancelCrop}/>
+                </>
+            )}
         </div>
 
     </>
