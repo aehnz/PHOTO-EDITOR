@@ -18,6 +18,8 @@ function App() {
     let [isResizing, setIsResizing] = useState(false);
     let [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     let [resizeHandle, setResizeHandle] = useState(null);
+    let [blurMode, setBlurMode] = useState(false);
+    let [blurIntensity, setBlurIntensity] = useState(5);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -37,6 +39,8 @@ function App() {
         setImageSrc(null);
         setHasImage(false);
         setCropMode(false);
+        setBlurMode(false);
+        setBlurIntensity(5);
     }
 
     function enableCropMode(){
@@ -52,12 +56,57 @@ function App() {
             alert(`Please upload an image first before applying ${action.toLowerCase()}!`);
             return;
         }
-        // Placeholder for future edit functionality
-        console.log(`${action} functionality will be implemented here`);
+        
+        if(action === 'Blur') {
+            enableBlurMode();
+        } else {
+            // Placeholder for future edit functionality
+            console.log(`${action} functionality will be implemented here`);
+        }
     }
 
     function cancelCrop(){
         setCropMode(false);
+    }
+
+    function enableBlurMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before applying blur!");
+            return;
+        }
+        setBlurMode(true);
+    }
+
+    function cancelBlur(){
+        setBlurMode(false);
+        setBlurIntensity(5); // Reset to default
+    }
+
+    function saveBlur(){
+        // Create a canvas to apply blur to the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
+        
+        // Set canvas dimensions to match image
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        
+        // Apply blur filter and draw image
+        ctx.filter = `blur(${blurIntensity}px)`;
+        ctx.drawImage(img, 0, 0);
+        
+        // Convert canvas to blob and update image
+        canvas.toBlob((blob) => {
+            const newImageUrl = URL.createObjectURL(blob);
+            setImageSrc(newImageUrl);
+            setBlurMode(false);
+            setBlurIntensity(5); // Reset to default
+        }, 'image/png');
+    }
+
+    function handleBlurChange(e){
+        setBlurIntensity(parseInt(e.target.value));
     }
 
     // Drag and resize handlers
@@ -192,7 +241,12 @@ function App() {
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                 >
-                    <img src={imageSrc} alt="uploaded Image" className="uploaded-image"/>
+                    <img 
+                        src={imageSrc} 
+                        alt="uploaded Image" 
+                        className="uploaded-image"
+                        style={blurMode ? { filter: `blur(${blurIntensity}px)` } : {}}
+                    />
                     {cropMode && (
                         <div 
                             className={`crop-box ${isDragging ? 'dragging' : ''} ${isResizing ? 'resizing' : ''}`}
@@ -244,19 +298,38 @@ function App() {
         </div>
 
         <div className="btn">
-            {!cropMode ? (
+            {!cropMode && !blurMode ? (
                 <>
                     <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
                     <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
                     <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
                 </>
-            ) : (
+            ) : cropMode ? (
                 <>
                     <Button name="Save Crop" onClick={saveCrop}/>
                     <Button name="Cancel" onClick={cancelCrop}/>
                 </>
-            )}
+            ) : blurMode ? (
+                <>
+                    <div className="blur-controls">
+                        <label htmlFor="blur-slider" className="blur-label">
+                            Blur Intensity: {blurIntensity}px
+                        </label>
+                        <input 
+                            type="range" 
+                            id="blur-slider"
+                            min="0" 
+                            max="20" 
+                            value={blurIntensity}
+                            onChange={handleBlurChange}
+                            className="blur-slider"
+                        />
+                    </div>
+                    <Button name="Save Blur" onClick={saveBlur}/>
+                    <Button name="Cancel" onClick={cancelBlur}/>
+                </>
+            ) : null}
         </div>
 
     </>
