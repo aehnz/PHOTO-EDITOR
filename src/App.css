@@ -513,6 +513,75 @@
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
+/* Contrast controls styling */
+.contrast-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.contrast-label {
+  color: #e2e8f0;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.contrast-slider {
+  width: 250px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, 
+    #065f46 0%, 
+    #10b981 50%, 
+    #34d399 100%);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.contrast-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #10b981;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.contrast-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  border-color: #34d399;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.4);
+}
+
+.contrast-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #10b981;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.contrast-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  border-color: #34d399;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.4);
+}
+
 /* Mobile touch improvements */
 @media (pointer: coarse) {
   .crop-handle {
@@ -604,6 +673,43 @@
   }
   
   .blur-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .contrast-controls {
+    margin: 0.25rem 0;
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(16, 185, 129, 0.08);
+    /* Add margin from right edge */
+    margin-right: 0.5rem;
+  }
+  
+  .contrast-label {
+    font-size: 0.75rem;
+    margin: 0;
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+  
+  .contrast-slider {
+    width: 120px;
+    height: 6px;
+    flex-shrink: 1;
+  }
+  
+  .contrast-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .contrast-slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
   }

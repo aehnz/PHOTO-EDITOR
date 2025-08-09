@@ -20,6 +20,8 @@ function App() {
     let [resizeHandle, setResizeHandle] = useState(null);
     let [blurMode, setBlurMode] = useState(false);
     let [blurIntensity, setBlurIntensity] = useState(5);
+    let [contrastMode, setContrastMode] = useState(false);
+    let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -41,6 +43,8 @@ function App() {
         setCropMode(false);
         setBlurMode(false);
         setBlurIntensity(5);
+        setContrastMode(false);
+        setContrastValue(100);
     }
 
     function enableCropMode(){
@@ -59,6 +63,8 @@ function App() {
         
         if(action === 'Blur') {
             enableBlurMode();
+        } else if(action === 'Contrast') {
+            enableContrastMode();
         } else {
             // Placeholder for future edit functionality
             console.log(`${action} functionality will be implemented here`);
@@ -107,6 +113,46 @@ function App() {
 
     function handleBlurChange(e){
         setBlurIntensity(parseInt(e.target.value));
+    }
+
+    function enableContrastMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before applying contrast!");
+            return;
+        }
+        setContrastMode(true);
+    }
+
+    function cancelContrast(){
+        setContrastMode(false);
+        setContrastValue(100); // Reset to default (100% = normal)
+    }
+
+    function saveContrast(){
+        // Create a canvas to apply contrast to the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
+        
+        // Set canvas dimensions to match image
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        
+        // Apply contrast filter and draw image
+        ctx.filter = `contrast(${contrastValue}%)`;
+        ctx.drawImage(img, 0, 0);
+        
+        // Convert canvas to blob and update image
+        canvas.toBlob((blob) => {
+            const newImageUrl = URL.createObjectURL(blob);
+            setImageSrc(newImageUrl);
+            setContrastMode(false);
+            setContrastValue(100); // Reset to default
+        }, 'image/png');
+    }
+
+    function handleContrastChange(e){
+        setContrastValue(parseInt(e.target.value));
     }
 
     // Universal handlers for both mouse and touch events
@@ -257,7 +303,9 @@ function App() {
                         src={imageSrc} 
                         alt="uploaded Image" 
                         className="uploaded-image"
-                        style={blurMode ? { filter: `blur(${blurIntensity}px)` } : {}}
+                        style={{
+                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim()
+                        }}
                     />
                     {cropMode && (
                         <div 
@@ -327,7 +375,7 @@ function App() {
         </div>
 
         <div className="btn">
-            {!cropMode && !blurMode ? (
+            {!cropMode && !blurMode && !contrastMode ? (
                 <div className="button-grid">
                     <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
@@ -358,6 +406,27 @@ function App() {
                     <div className="button-row">
                         <Button name="Save Blur" onClick={saveBlur}/>
                         <Button name="Cancel" onClick={cancelBlur}/>
+                    </div>
+                </>
+            ) : contrastMode ? (
+                <>
+                    <div className="contrast-controls">
+                        <label htmlFor="contrast-slider" className="contrast-label">
+                            Contrast: {contrastValue}%
+                        </label>
+                        <input 
+                            type="range" 
+                            id="contrast-slider"
+                            min="0" 
+                            max="200" 
+                            value={contrastValue}
+                            onChange={handleContrastChange}
+                            className="contrast-slider"
+                        />
+                    </div>
+                    <div className="button-row">
+                        <Button name="Save Contrast" onClick={saveContrast}/>
+                        <Button name="Cancel" onClick={cancelContrast}/>
                     </div>
                 </>
             ) : null}
