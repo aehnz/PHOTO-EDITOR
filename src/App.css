@@ -777,4 +777,16 @@
   box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
 }
 
+#rotate-degrees-input{
+  padding: 0.5rem;
+  border: 1px solid #6366f1;
+  border-radius: 5px;
+  background-color: #1f2937;
+  color: white;
+  font-size: 1rem;
+  width: 100px;
+  text-align: center;
+
+}
+
 

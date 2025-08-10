@@ -490,7 +490,7 @@ function App() {
                 <>
                     <div className="rotate-controls">
                         <label htmlFor="rotate-input" className="rotate-label">
-                            Rotate (degrees): {rotateDegree}
+                            Rotate (degrees): 
                         </label>
                         <input 
                             type="number" 
