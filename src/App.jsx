@@ -22,6 +22,8 @@ function App() {
     let [blurIntensity, setBlurIntensity] = useState(5);
     let [contrastMode, setContrastMode] = useState(false);
     let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
+    let [rotateMode, setRotateMode] = useState(false);
+    let [rotateDegree, setRotateDegree] = useState(0);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -45,6 +47,8 @@ function App() {
         setBlurIntensity(5);
         setContrastMode(false);
         setContrastValue(100);
+        setRotateMode(false);
+        setRotateDegree(0);
     }
 
     function enableCropMode(){
@@ -65,6 +69,8 @@ function App() {
             enableBlurMode();
         } else if(action === 'Contrast') {
             enableContrastMode();
+        } else if(action === 'Rotate') {
+            enableRotateMode();
         } else {
             // Placeholder for future edit functionality
             console.log(`${action} functionality will be implemented here`);
@@ -153,6 +159,56 @@ function App() {
 
     function handleContrastChange(e){
         setContrastValue(parseInt(e.target.value));
+    }
+
+    function enableRotateMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before rotating!");
+            return;
+        }
+        setRotateMode(true);
+    }
+
+    function cancelRotate(){
+        setRotateMode(false);
+        setRotateDegree(0); // Reset to default
+    }
+
+    function saveRotate(){
+        // Create a canvas to rotate the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
+
+        // Calculate new canvas dimensions for rotation
+        const radian = (rotateDegree * Math.PI) / 180;
+        const sin = Math.abs(Math.sin(radian));
+        const cos = Math.abs(Math.cos(radian));
+        const newWidth = img.naturalWidth * cos + img.naturalHeight * sin;
+        const newHeight = img.naturalWidth * sin + img.naturalHeight * cos;
+
+        // Set canvas dimensions
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        // Move to center, rotate, then draw image
+        ctx.save();
+        ctx.translate(newWidth / 2, newHeight / 2);
+        ctx.rotate(radian);
+        ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+        ctx.restore();
+
+        // Convert canvas to blob and update image
+        canvas.toBlob((blob) => {
+            const newImageUrl = URL.createObjectURL(blob);
+            setImageSrc(newImageUrl);
+            setRotateMode(false);
+            setRotateDegree(0); // Reset to default
+        }, 'image/png');
+    }
+
+    function handleRotateChange(e){
+        setRotateDegree(parseInt(e.target.value));
     }
 
     // Universal handlers for both mouse and touch events
@@ -304,7 +360,8 @@ function App() {
                         alt="uploaded Image" 
                         className="uploaded-image"
                         style={{
-                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim()
+                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim(),
+                            transform: rotateMode ? `rotate(${rotateDegree}deg)` : undefined
                         }}
                     />
                     {cropMode && (
@@ -375,7 +432,7 @@ function App() {
         </div>
 
         <div className="btn">
-            {!cropMode && !blurMode && !contrastMode ? (
+            {!cropMode && !blurMode && !contrastMode && !rotateMode ? (
                 <div className="button-grid">
                     <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
@@ -427,6 +484,28 @@ function App() {
                     <div className="button-row">
                         <Button name="Save Contrast" onClick={saveContrast}/>
                         <Button name="Cancel" onClick={cancelContrast}/>
+                    </div>
+                </>
+            ) : rotateMode ? (
+                <>
+                    <div className="rotate-controls">
+                        <label htmlFor="rotate-input" className="rotate-label">
+                            Rotate (degrees): 
+                        </label>
+                        <input 
+                            type="number" 
+                            id="rotate-degrees-input"
+                            min="-360" 
+                            max="360" 
+                            value={rotateDegree}
+                            onChange={handleRotateChange}
+                            className="rotate-input"
+                            placeholder="Enter degrees"
+                        />
+                    </div>
+                    <div className="button-row">
+                        <button  className="button" onClick={saveRotate}>Save</button>
+                        <button  className="button" onClick={cancelRotate}>Cancel</button>
                     </div>
                 </>
             ) : null}
