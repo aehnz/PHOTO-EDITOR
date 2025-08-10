@@ -504,8 +504,8 @@ function App() {
                         />
                     </div>
                     <div className="button-row">
-                        <button id="rotate-save-button" onClick={saveRotate}>Save</button>
-                        <button id="rotate-cancel-button" onClick={cancelRotate}>Cancel</button>
+                        <button  className="button" onClick={saveRotate}>Save</button>
+                        <button  className="button" onClick={cancelRotate}>Cancel</button>
                     </div>
                 </>
             ) : null}
