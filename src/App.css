@@ -758,4 +758,23 @@
   flex-wrap: wrap;
 }
 
+/* Rotate mode buttons styling */
+#rotate-save-button, #rotate-cancel-button {
+  background-color: #6b46c1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  min-width: 8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#rotate-save-button:hover, #rotate-cancel-button:hover {
+  background-color: #553c9a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+}
+
 

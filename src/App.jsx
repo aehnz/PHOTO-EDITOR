@@ -494,7 +494,7 @@ function App() {
                         </label>
                         <input 
                             type="number" 
-                            id="rotate-input"
+                            id="rotate-degrees-input"
                             min="-360" 
                             max="360" 
                             value={rotateDegree}
@@ -504,8 +504,8 @@ function App() {
                         />
                     </div>
                     <div className="button-row">
-                        <button id="rotate-save-btn" onClick={saveRotate}>Save</button>
-                        <button id="rotate-cancel-btn" onClick={cancelRotate}>Cancel</button>
+                        <button id="rotate-save-button" onClick={saveRotate}>Save</button>
+                        <button id="rotate-cancel-button" onClick={cancelRotate}>Cancel</button>
                     </div>
                 </>
             ) : null}
