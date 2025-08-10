@@ -23,7 +23,7 @@ function App() {
     let [contrastMode, setContrastMode] = useState(false);
     let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
     let [rotateMode, setRotateMode] = useState(false);
-    let [rotationDegrees, setRotationDegrees] = useState(0); // User input degrees
+    let [rotateDegree, setRotateDegree] = useState(0);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -48,7 +48,7 @@ function App() {
         setContrastMode(false);
         setContrastValue(100);
         setRotateMode(false);
-        setRotationDegrees(0);
+        setRotateDegree(0);
     }
 
     function enableCropMode(){
@@ -166,60 +166,49 @@ function App() {
             alert("Please upload an image first before rotating!");
             return;
         }
-        setCropMode(false);
-        setBlurMode(false);
-        setContrastMode(false);
         setRotateMode(true);
     }
 
     function cancelRotate(){
         setRotateMode(false);
-        setRotationDegrees(0); // Reset rotation degrees
-    }
-
-    function handleRotationChange(e){
-        const degrees = parseInt(e.target.value) || 0;
-        setRotationDegrees(degrees);
+        setRotateDegree(0); // Reset to default
     }
 
     function saveRotate(){
-        if (rotationDegrees === 0) {
-            // No rotation needed, just exit rotate mode
-            setRotateMode(false);
-            return;
-        }
+        // Create a canvas to rotate the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
 
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        
-        img.onload = function() {
-            // Calculate new canvas size based on rotation
-            const angle = (rotationDegrees * Math.PI) / 180;
-            const cos = Math.abs(Math.cos(angle));
-            const sin = Math.abs(Math.sin(angle));
-            
-            canvas.width = img.width * cos + img.height * sin;
-            canvas.height = img.width * sin + img.height * cos;
-            
-            // Rotate around center
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate(angle);
-            ctx.drawImage(img, -img.width / 2, -img.height / 2);
-            
-            // Convert canvas to blob and update image
-            canvas.toBlob(function(blob) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    setImageSrc(e.target.result);
-                    setRotateMode(false);
-                    setRotationDegrees(0); // Reset rotation degrees
-                };
-                reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.9);
-        };
-        
-        img.src = imageSrc;
+        // Calculate new canvas dimensions for rotation
+        const radian = (rotateDegree * Math.PI) / 180;
+        const sin = Math.abs(Math.sin(radian));
+        const cos = Math.abs(Math.cos(radian));
+        const newWidth = img.naturalWidth * cos + img.naturalHeight * sin;
+        const newHeight = img.naturalWidth * sin + img.naturalHeight * cos;
+
+        // Set canvas dimensions
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        // Move to center, rotate, then draw image
+        ctx.save();
+        ctx.translate(newWidth / 2, newHeight / 2);
+        ctx.rotate(radian);
+        ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+        ctx.restore();
+
+        // Convert canvas to blob and update image
+        canvas.toBlob((blob) => {
+            const newImageUrl = URL.createObjectURL(blob);
+            setImageSrc(newImageUrl);
+            setRotateMode(false);
+            setRotateDegree(0); // Reset to default
+        }, 'image/png');
+    }
+
+    function handleRotateChange(e){
+        setRotateDegree(parseInt(e.target.value));
     }
 
     // Universal handlers for both mouse and touch events
@@ -372,8 +361,7 @@ function App() {
                         className="uploaded-image"
                         style={{
                             filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim(),
-                            transform: rotateMode ? `rotate(${rotationDegrees}deg)` : 'none',
-                            transition: 'transform 0.3s ease'
+                            transform: rotateMode ? `rotate(${rotateDegree}deg)` : undefined
                         }}
                     />
                     {cropMode && (
@@ -501,26 +489,23 @@ function App() {
             ) : rotateMode ? (
                 <>
                     <div className="rotate-controls">
-                        <label className="rotate-label">
-                            Enter Rotation Degrees:
+                        <label htmlFor="rotate-input" className="rotate-label">
+                            Rotate (degrees): {rotateDegree}
                         </label>
                         <input 
                             type="number" 
-                            value={rotationDegrees} 
-                            onChange={handleRotationChange}
-                            placeholder="Enter degrees (e.g., 90, 180, -45)"
+                            id="rotate-input"
+                            min="-360" 
+                            max="360" 
+                            value={rotateDegree}
+                            onChange={handleRotateChange}
                             className="rotate-input"
-                            min="-360"
-                            max="360"
-                            step="1"
+                            placeholder="Enter degrees"
                         />
-                        <div className="rotation-preview">
-                            Preview: {rotationDegrees}°
-                        </div>
                     </div>
                     <div className="button-row">
-                        <Button name="Save Rotate" onClick={saveRotate}/>
-                        <Button name="Cancel" onClick={cancelRotate}/>
+                        <button id="rotate-save-btn" onClick={saveRotate}>Save</button>
+                        <button id="rotate-cancel-btn" onClick={cancelRotate}>Cancel</button>
                     </div>
                 </>
             ) : null}
