@@ -22,6 +22,8 @@ function App() {
     let [blurIntensity, setBlurIntensity] = useState(5);
     let [contrastMode, setContrastMode] = useState(false);
     let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
+    let [rotateMode, setRotateMode] = useState(false);
+    let [rotationDegrees, setRotationDegrees] = useState(0); // User input degrees
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -45,6 +47,8 @@ function App() {
         setBlurIntensity(5);
         setContrastMode(false);
         setContrastValue(100);
+        setRotateMode(false);
+        setRotationDegrees(0);
     }
 
     function enableCropMode(){
@@ -65,6 +69,8 @@ function App() {
             enableBlurMode();
         } else if(action === 'Contrast') {
             enableContrastMode();
+        } else if(action === 'Rotate') {
+            enableRotateMode();
         } else {
             // Placeholder for future edit functionality
             console.log(`${action} functionality will be implemented here`);
@@ -153,6 +159,67 @@ function App() {
 
     function handleContrastChange(e){
         setContrastValue(parseInt(e.target.value));
+    }
+
+    function enableRotateMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before rotating!");
+            return;
+        }
+        setCropMode(false);
+        setBlurMode(false);
+        setContrastMode(false);
+        setRotateMode(true);
+    }
+
+    function cancelRotate(){
+        setRotateMode(false);
+        setRotationDegrees(0); // Reset rotation degrees
+    }
+
+    function handleRotationChange(e){
+        const degrees = parseInt(e.target.value) || 0;
+        setRotationDegrees(degrees);
+    }
+
+    function saveRotate(){
+        if (rotationDegrees === 0) {
+            // No rotation needed, just exit rotate mode
+            setRotateMode(false);
+            return;
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        
+        img.onload = function() {
+            // Calculate new canvas size based on rotation
+            const angle = (rotationDegrees * Math.PI) / 180;
+            const cos = Math.abs(Math.cos(angle));
+            const sin = Math.abs(Math.sin(angle));
+            
+            canvas.width = img.width * cos + img.height * sin;
+            canvas.height = img.width * sin + img.height * cos;
+            
+            // Rotate around center
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(angle);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            
+            // Convert canvas to blob and update image
+            canvas.toBlob(function(blob) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    setImageSrc(e.target.result);
+                    setRotateMode(false);
+                    setRotationDegrees(0); // Reset rotation degrees
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.9);
+        };
+        
+        img.src = imageSrc;
     }
 
     // Universal handlers for both mouse and touch events
@@ -304,7 +371,9 @@ function App() {
                         alt="uploaded Image" 
                         className="uploaded-image"
                         style={{
-                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim()
+                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim(),
+                            transform: rotateMode ? `rotate(${rotationDegrees}deg)` : 'none',
+                            transition: 'transform 0.3s ease'
                         }}
                     />
                     {cropMode && (
@@ -375,7 +444,7 @@ function App() {
         </div>
 
         <div className="btn">
-            {!cropMode && !blurMode && !contrastMode ? (
+            {!cropMode && !blurMode && !contrastMode && !rotateMode ? (
                 <div className="button-grid">
                     <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
@@ -427,6 +496,31 @@ function App() {
                     <div className="button-row">
                         <Button name="Save Contrast" onClick={saveContrast}/>
                         <Button name="Cancel" onClick={cancelContrast}/>
+                    </div>
+                </>
+            ) : rotateMode ? (
+                <>
+                    <div className="rotate-controls">
+                        <label className="rotate-label">
+                            Enter Rotation Degrees:
+                        </label>
+                        <input 
+                            type="number" 
+                            value={rotationDegrees} 
+                            onChange={handleRotationChange}
+                            placeholder="Enter degrees (e.g., 90, 180, -45)"
+                            className="rotate-input"
+                            min="-360"
+                            max="360"
+                            step="1"
+                        />
+                        <div className="rotation-preview">
+                            Preview: {rotationDegrees}°
+                        </div>
+                    </div>
+                    <div className="button-row">
+                        <Button name="Save Rotate" onClick={saveRotate}/>
+                        <Button name="Cancel" onClick={cancelRotate}/>
                     </div>
                 </>
             ) : null}
