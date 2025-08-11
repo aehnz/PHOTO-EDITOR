@@ -94,20 +94,51 @@ function App() {
         setBlurIntensity(5); // Reset to default
     }
 
+    // Utility function to convert dataURL to Blob
+    function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    // Generic function to send image and operation to backend
+    async function processImageOnBackend(operation, params = {}) {
+        if (!imageSrc) return;
+        const blob = dataURLtoBlob(imageSrc);
+        const formData = new FormData();
+        formData.append('image', blob, 'image.png');
+        formData.append('operation', operation);
+        Object.entries(params).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+        try {
+            const response = await fetch('http://localhost:1949/process-image', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) throw new Error('Backend error');
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setImageSrc(url);
+        } catch (err) {
+            alert('Image processing failed: ' + err.message);
+        }
+    }
+
     function saveBlur(){
         // Create a canvas to apply blur to the image
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        
         // Set canvas dimensions to match image
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        
         // Apply blur filter and draw image
         ctx.filter = `blur(${blurIntensity}px)`;
         ctx.drawImage(img, 0, 0);
-        
         // Convert canvas to blob and update image
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
@@ -139,15 +170,12 @@ function App() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        
         // Set canvas dimensions to match image
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        
         // Apply contrast filter and draw image
         ctx.filter = `contrast(${contrastValue}%)`;
         ctx.drawImage(img, 0, 0);
-        
         // Convert canvas to blob and update image
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
@@ -179,25 +207,21 @@ function App() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-
         // Calculate new canvas dimensions for rotation
         const radian = (rotateDegree * Math.PI) / 180;
         const sin = Math.abs(Math.sin(radian));
         const cos = Math.abs(Math.cos(radian));
         const newWidth = img.naturalWidth * cos + img.naturalHeight * sin;
         const newHeight = img.naturalWidth * sin + img.naturalHeight * cos;
-
         // Set canvas dimensions
         canvas.width = newWidth;
         canvas.height = newHeight;
-
         // Move to center, rotate, then draw image
         ctx.save();
         ctx.translate(newWidth / 2, newHeight / 2);
         ctx.rotate(radian);
         ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
         ctx.restore();
-
         // Convert canvas to blob and update image
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
@@ -307,17 +331,14 @@ function App() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        
         // Get the actual display dimensions and scale
         const displayWidth = img.clientWidth;
         const displayHeight = img.clientHeight;
         const scaleX = img.naturalWidth / displayWidth;
         const scaleY = img.naturalHeight / displayHeight;
-        
         // Set canvas size to crop area
         canvas.width = cropArea.width * scaleX;
         canvas.height = cropArea.height * scaleY;
-        
         // Draw cropped portion
         ctx.drawImage(
             img,
@@ -326,11 +347,79 @@ function App() {
             0, 0,
             canvas.width, canvas.height
         );
-        
         // Convert canvas to data URL and update image
         const croppedImageData = canvas.toDataURL();
         setImageSrc(croppedImageData);
         setCropMode(false);
+    }
+
+    async function saveImageToBackend() {
+        if (!imageSrc) {
+            alert('No image to save!');
+            return;
+        }
+        let blob;
+        if (imageSrc.startsWith('data:')) {
+            // Convert data URL to Blob
+            var arr = imageSrc.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            blob = new Blob([u8arr], {type:mime});
+        } else if (imageSrc.startsWith('blob:')) {
+            // Fetch the blob from the blob URL
+            const response = await fetch(imageSrc);
+            blob = await response.blob();
+        } else {
+            alert('Unknown image format!');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('image', blob, 'edited.png');
+        try {
+            const response = await fetch('http://localhost:1949/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (response.ok) {
+                alert('Image saved! Filename: ' + result.filename);
+            } else {
+                alert('Failed to save image: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('Failed to save image: ' + err.message);
+        }
+    }
+
+    async function downloadImage() {
+        if (!imageSrc) {
+            alert('No image to download!');
+            return;
+        }
+        try {
+            let blob;
+            if (imageSrc.startsWith('data:')) {
+                const arr = imageSrc.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+                blob = new Blob([u8arr], { type: mime });
+            } else {
+                const res = await fetch(imageSrc);
+                blob = await res.blob();
+            }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'edited.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            alert('Download failed: ' + e.message);
+        }
     }
 
   return (
@@ -438,6 +527,8 @@ function App() {
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
                     <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
                     <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
+                    <Button name="Save Image" onClick={saveImageToBackend} disabled={!hasImage}/>
+                    <Button name="Download Image" onClick={downloadImage} disabled={!hasImage}/>
                 </div>
             ) : cropMode ? (
                 <div className="button-row">
