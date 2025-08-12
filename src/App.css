@@ -786,7 +786,98 @@
   font-size: 1rem;
   width: 100px;
   text-align: center;
+}
 
+/* Floating Mic Button */
+.mic-button-container {
+  position: fixed;
+  bottom: 7rem;
+  right: 2rem;
+  z-index: 1001;
+}
+
+.mic-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 20px rgba(99, 102, 241, 0.4),
+    0 0 0 0 rgba(99, 102, 241, 0.7);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    #8a2be2, #4b0082, #0000ff, #00ff00, 
+    #ffff00, #ffa500, #ff0000, #8a2be2, 
+    #4b0082, #0000ff, #00ff00, #ffff00);
+  background-size: 300% 100%;
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(1.2);
+  transition: opacity 0.3s ease;
+}
+
+.mic-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 8px 30px rgba(99, 102, 241, 0.6),
+    0 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.mic-button:hover::before {
+  opacity: 0.8;
+  animation: moveGradient 3s linear infinite;
+}
+
+.mic-button:active {
+  transform: translateY(0) scale(1);
+  box-shadow: 
+    0 2px 10px rgba(99, 102, 241, 0.4),
+    0 0 0 5px rgba(99, 102, 241, 0.2);
+}
+
+.mic-button svg {
+  transition: transform 0.2s ease;
+}
+
+.mic-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 640px) {
+  .mic-button-container {
+    bottom: 9rem;
+    right: 1rem;
+  }
+  
+  .mic-button {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .mic-button svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 
