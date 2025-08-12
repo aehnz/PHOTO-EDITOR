@@ -24,6 +24,7 @@ function App() {
     let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
     let [rotateMode, setRotateMode] = useState(false);
     let [rotateDegree, setRotateDegree] = useState(0);
+    let [micAnimationActive, setMicAnimationActive] = useState(false);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -561,6 +562,23 @@ function App() {
                     </div>
                 </>
             ) : null}
+        </div>
+
+        {/* Floating Mic Button */}
+        <div className="mic-button-container">
+            <button 
+                className={`mic-button ${micAnimationActive ? 'active' : ''}`}
+                title="Voice Command"
+                onClick={() => setMicAnimationActive(!micAnimationActive)}
+            >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                    <path d="M19 10V12C19 16.42 15.42 20 11 20H13C17.42 20 21 16.42 21 12V10H19Z" fill="currentColor"/>
+                    <path d="M5 10V12C5 16.42 8.58 20 13 20H11C6.58 20 3 16.42 3 12V10H5Z" fill="currentColor"/>
+                    <path d="M12 22V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M8 22H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+            </button>
         </div>
 
     </>
