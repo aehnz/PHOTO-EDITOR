@@ -836,14 +836,14 @@
     transition: opacity 0.3s ease;
 }
 
-.mic-button:hover {
+.mic-button:active {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 
         0 8px 30px rgba(99, 102, 241, 0.6),
         0 0 0 10px rgba(99, 102, 241, 0.1);
 }
 
-.mic-button:hover::before {
+.mic-button.active::before {
     opacity: 0.8;
     animation: moveRainbowShadow 5s linear infinite;
 }
