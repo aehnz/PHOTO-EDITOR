@@ -353,45 +353,7 @@ function App() {
         setCropMode(false);
     }
 
-    async function saveImageToBackend() {
-        if (!imageSrc) {
-            alert('No image to save!');
-            return;
-        }
-        let blob;
-        if (imageSrc.startsWith('data:')) {
-            // Convert data URL to Blob
-            var arr = imageSrc.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--){
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            blob = new Blob([u8arr], {type:mime});
-        } else if (imageSrc.startsWith('blob:')) {
-            // Fetch the blob from the blob URL
-            const response = await fetch(imageSrc);
-            blob = await response.blob();
-        } else {
-            alert('Unknown image format!');
-            return;
-        }
-        const formData = new FormData();
-        formData.append('image', blob, 'edited.png');
-        try {
-            const response = await fetch('http://localhost:1949/upload-image', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-            if (response.ok) {
-                alert('Image saved! Filename: ' + result.filename);
-            } else {
-                alert('Failed to save image: ' + (result.error || 'Unknown error'));
-            }
-        } catch (err) {
-            alert('Failed to save image: ' + err.message);
-        }
-    }
+
 
     async function downloadImage() {
         if (!imageSrc) {
@@ -527,7 +489,6 @@ function App() {
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
                     <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
                     <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
-                    <Button name="Save Image" onClick={saveImageToBackend} disabled={!hasImage}/>
                     <Button name="Download Image" onClick={downloadImage} disabled={!hasImage}/>
                 </div>
             ) : cropMode ? (

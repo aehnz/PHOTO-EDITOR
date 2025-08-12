@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, send_file, jsonify, send_from_directory, url_for
+from flask import Flask, request, send_file, jsonify
 from backend.functions.rotate import rotate
 from backend.functions.crop import crop
 from backend.functions.blur import blur
@@ -20,36 +20,7 @@ from backend.routes.voiceCommand import voice_command_bp
 
 app.register_blueprint(voice_command_bp)
 
-SAVE_DIR = os.path.join(os.path.dirname(__file__), 'saved_images')
-os.makedirs(SAVE_DIR, exist_ok=True)
 
-@app.route('/images/<path:filename>', methods=['GET'])
-def get_saved_image(filename):
-    return send_from_directory(SAVE_DIR, filename)
-
-@app.route('/upload-image', methods=['POST'])
-def upload_image():
-    image_file = request.files.get('image')
-    if not image_file:
-        return jsonify({'error': 'No image provided'}), 400
-    filename = image_file.filename or 'image.png'
-    save_path = os.path.join(SAVE_DIR, filename)
-    # Ensure unique filename
-    base, ext = os.path.splitext(filename)
-    counter = 1
-    while os.path.exists(save_path):
-        filename = f"{base}_{counter}{ext}"
-        save_path = os.path.join(SAVE_DIR, filename)
-        counter += 1
-    image_file.save(save_path)
-    file_url = url_for('get_saved_image', filename=filename, _external=True)
-    return jsonify({'message': 'Image saved', 'filename': filename, 'url': file_url}), 200
-
-@app.route('/images', methods=['GET'])
-def list_images():
-    files = [f for f in os.listdir(SAVE_DIR) if os.path.isfile(os.path.join(SAVE_DIR, f))]
-    items = [{'filename': f, 'url': url_for('get_saved_image', filename=f, _external=True)} for f in files]
-    return jsonify({'images': items})
 
 @app.route('/process-image', methods=['POST'])
 def process_image():
