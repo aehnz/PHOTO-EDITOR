@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, send_file
-from backend.utilities.utility import parse_command_with_gemini
+from backend.utilities.utility import parse_command_with_gemini, generate_image_from_prompt
 from backend.functions.rotate import rotate
 from backend.functions.crop import crop
 from backend.functions.blur import blur
@@ -17,10 +17,7 @@ logging.basicConfig(level=logging.INFO)
 def voice_command():
     commandText = request.form.get("command", "")
     imageFile = request.files.get("image")
-    if not imageFile:
-        return jsonify({"error": "No image provided"}), 400
-
-    imageBytes = imageFile.read()
+    imageBytes = imageFile.read() if imageFile else None
     parsedAction = parse_command_with_gemini(commandText)
 
     # Log the original command and Gemini's parsed response
@@ -28,19 +25,26 @@ def voice_command():
     logging.info(f"Gemini parsed response: {parsedAction}")
 
     action = parsedAction.get("action")
-    known_actions = {"rotate", "crop", "blur", "brightness"}
+    known_actions = {"rotate", "crop", "blur", "brightness", "generate"}
     if not action or action not in known_actions:
         return jsonify({
-            "error": "Unknown or unsupported command. Please try again with a valid action (rotate, crop, blur, brightness).",
+            "error": "Unknown or unsupported command. Please try again with a valid action (rotate, crop, blur, brightness, generate).",
             "originalCommand": commandText,
             "geminiParsed": parsedAction
         }), 400
 
     try:
-        if action == "rotate":
+        if action == "generate":
+            prompt = parsedAction.get("prompt") or commandText
+            result = generate_image_from_prompt(prompt)
+        elif action == "rotate":
             angle = parsedAction.get("angle", 0)
+            if not imageBytes:
+                return jsonify({"error": "No image provided for rotation"}), 400
             result = rotate(imageBytes, angle)
         elif action == "crop":
+            if not imageBytes:
+                return jsonify({"error": "No image provided for crop"}), 400
             result = crop(
                 imageBytes,
                 parsedAction.get("left", 0),
@@ -50,9 +54,13 @@ def voice_command():
             )
         elif action == "blur":
             radius = parsedAction.get("radius", 2)
+            if not imageBytes:
+                return jsonify({"error": "No image provided for blur"}), 400
             result = blur(imageBytes, radius)
         elif action == "brightness":
             level = parsedAction.get("level", 1.0)
+            if not imageBytes:
+                return jsonify({"error": "No image provided for brightness"}), 400
             result = brightness(imageBytes, level)
         else:
             # This should not be reached due to earlier check

@@ -1,6 +1,6 @@
 import Button from "./Button.jsx"
 import InputFile from "./inputFile.jsx"
-import {useState} from "react";
+import {useState, useRef} from "react";
 import './App.css'
 
 function App() {
@@ -25,6 +25,8 @@ function App() {
     let [rotateMode, setRotateMode] = useState(false);
     let [rotateDegree, setRotateDegree] = useState(0);
     let [micAnimationActive, setMicAnimationActive] = useState(false);
+    let [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef(null);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
         if(e.target.files.length > 0){
@@ -127,6 +129,79 @@ function App() {
         } catch (err) {
             alert('Image processing failed: ' + err.message);
         }
+    }
+
+    async function buildImageBlobFromSrc() {
+        if (!imageSrc) return null;
+        try {
+            if (imageSrc.startsWith('data:')) {
+                return dataURLtoBlob(imageSrc);
+            } else {
+                const res = await fetch(imageSrc);
+                return await res.blob();
+            }
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function sendVoiceCommandToBackend(transcript) {
+        const formData = new FormData();
+        formData.append('command', transcript);
+        // Attach image if present to support edit actions; omit for generation
+        if (hasImage && imageSrc) {
+            const blob = await buildImageBlobFromSrc();
+            if (blob) formData.append('image', blob, 'image.png');
+        }
+        try {
+            const response = await fetch('http://localhost:1949/voice-command', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) throw new Error('Backend error');
+            const resultBlob = await response.blob();
+            const url = URL.createObjectURL(resultBlob);
+            setImageSrc(url);
+        } catch (err) {
+            alert('Voice command failed: ' + err.message);
+        }
+    }
+
+    function handleMicClick(){
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('Speech Recognition not supported in this browser.');
+            return;
+        }
+        // If already listening, stop
+        if (recognitionRef.current && isListening) {
+            try { recognitionRef.current.stop(); } catch(_) {}
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onstart = () => {
+            setIsListening(true);
+            setMicAnimationActive(true);
+        };
+        recognition.onerror = () => {
+            setIsListening(false);
+            setMicAnimationActive(false);
+        };
+        recognition.onend = () => {
+            setIsListening(false);
+            setMicAnimationActive(false);
+        };
+        recognition.onresult = (event) => {
+            const transcript = event.results && event.results[0] && event.results[0][0] ? event.results[0][0].transcript : '';
+            if (transcript && transcript.trim().length > 0) {
+                sendVoiceCommandToBackend(transcript.trim());
+            }
+        };
+        recognitionRef.current = recognition;
+        recognition.start();
     }
 
     function saveBlur(){
@@ -564,12 +639,13 @@ function App() {
             ) : null}
         </div>
 
-        {/* Floating Mic Button */}
+        {/* Floating Mic Button */
+        }
         <div className="mic-button-container">
             <button 
                 className={`mic-button ${micAnimationActive ? 'active' : ''}`}
                 title="Voice Command"
-                onClick={() => setMicAnimationActive(!micAnimationActive)}
+                onClick={handleMicClick}
             >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
