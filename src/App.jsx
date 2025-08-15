@@ -482,6 +482,17 @@ function App() {
         <div className="orb orb7"></div>
         <div className="orb orb8"></div>
 
+        {/* Close (X) button in top-left */}
+        {hasImage && imageSrc && (
+            <div style={{ position: 'fixed', top: '0.5rem', left: '0.5rem', zIndex: 2000 }}>
+                <button type="button" id="close" onClick={removeImage}>X</button>
+            </div>
+        )}
+        {/* Download Image button in top-right */}
+        <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 2000 }}>
+            <Button name="Download Image" onClick={downloadImage} disabled={!hasImage}/>
+        </div>
+
         <div className="image-wrapper">
             {hasImage && imageSrc && (
                 <div 
@@ -491,6 +502,7 @@ function App() {
                     onMouseLeave={handlePointerUp}
                     onTouchMove={handlePointerMove}
                     onTouchEnd={handlePointerUp}
+                    style={{ position: 'relative' }}
                 >
                     <img 
                         src={imageSrc} 
@@ -561,7 +573,6 @@ function App() {
                     )}
                 </div>
             )}
-            {hasImage && imageSrc && (<button type="button" id="close" onClick={removeImage}>X</button>)}
         </div>
 
         <div className="input-wrapper">
@@ -575,7 +586,6 @@ function App() {
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
                     <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
                     <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
-                    <Button name="Download Image" onClick={downloadImage} disabled={!hasImage}/>
                 </div>
             ) : cropMode ? (
                 <div className="button-row">

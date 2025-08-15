@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Anurati';
+  src: url('/ANURATI Free Font/Anurati-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #root {
   max-width: 1280px;
   margin: 2rem auto;
@@ -181,15 +188,17 @@
   background-color: #6366f1;
   color: white;
   border-radius: 5px;
-  padding: 0.75rem 1.5rem;
+  padding: 0.4rem 0.8rem;
   margin: 0;
-  font-size: 1rem;
-  min-width: 8rem;
+  font-size: 0.85rem;
+  min-width: 6rem;
   position: relative;
   overflow: visible;
   transition: all 0.3s ease;
   border: 2px solid transparent;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Anurati', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.45em;
 }
 
 .button::before {
@@ -277,15 +286,33 @@
 
 .Upload-btn {
   margin: 10vh auto;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
 }
 
-#close{
-  background-color: red;
+#close {
+  background-color: #ef4444;
   color: white;
   border-radius: 50%;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: background 0.2s;
+}
+#close:hover {
+  background-color: #b91c1c;
 }
 
 .image-wrapper{
@@ -772,12 +799,14 @@
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  min-width: 8rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  min-width: 6rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Anurati', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.45em;
 }
 
 #rotate-save-button:hover, #rotate-cancel-button:hover {
