@@ -158,7 +158,17 @@ function App() {
                 method: 'POST',
                 body: formData
             });
-            if (!response.ok) throw new Error('Backend error');
+            if (!response.ok) {
+                // Try to read JSON error message for better diagnostics
+                let msg = 'Backend error';
+                try {
+                    const data = await response.json();
+                    msg = data?.error || JSON.stringify(data);
+                } catch (_) {
+                    // ignore parse errors
+                }
+                throw new Error(msg);
+            }
             const resultBlob = await response.blob();
             const url = URL.createObjectURL(resultBlob);
             setImageSrc(url);
@@ -460,7 +470,7 @@ function App() {
         }
     }
 
-  return (
+    return (
     <>
         {/* Floating orbs */}
         <div className="orb orb1"></div>
@@ -647,6 +657,13 @@ function App() {
                 title="Voice Command"
                 onClick={handleMicClick}
             >
+                {micAnimationActive && (
+                    <>
+                        <span className="mic-ring ring1" aria-hidden="true"></span>
+                        <span className="mic-ring ring2" aria-hidden="true"></span>
+                        <span className="mic-ring ring3" aria-hidden="true"></span>
+                    </>
+                )}
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
                     <path d="M19 10V12C19 16.42 15.42 20 11 20H13C17.42 20 21 16.42 21 12V10H19Z" fill="currentColor"/>

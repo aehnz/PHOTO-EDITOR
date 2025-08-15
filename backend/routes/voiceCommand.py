@@ -4,6 +4,7 @@ from backend.functions.rotate import rotate
 from backend.functions.crop import crop
 from backend.functions.blur import blur
 from backend.functions.brightness import brightness
+from backend.functions.contrast import contrast
 import io
 import logging
 
@@ -18,19 +19,33 @@ def voice_command():
     commandText = request.form.get("command", "")
     imageFile = request.files.get("image")
     imageBytes = imageFile.read() if imageFile else None
+    
+    # Log the raw command for debugging
+    logging.info(f"Raw voice command received: '{commandText}'")
+    
     parsedAction = parse_command_with_gemini(commandText)
 
     # Log the original command and Gemini's parsed response
     logging.info(f"Voice command received: {commandText}")
     logging.info(f"Gemini parsed response: {parsedAction}")
+    logging.info(f"Parsed action type: {type(parsedAction)}")
+    logging.info(f"Parsed action keys: {list(parsedAction.keys()) if isinstance(parsedAction, dict) else 'Not a dict'}")
 
     action = parsedAction.get("action")
-    known_actions = {"rotate", "crop", "blur", "brightness", "generate"}
+    known_actions = {"rotate", "crop", "blur", "brightness", "contrast", "generate"}
+    logging.info(f"Extracted action: '{action}'")
+    logging.info(f"Action in known_actions: {action in known_actions}")
+    
     if not action or action not in known_actions:
         return jsonify({
             "error": "Unknown or unsupported command. Please try again with a valid action (rotate, crop, blur, brightness, generate).",
             "originalCommand": commandText,
-            "geminiParsed": parsedAction
+            "geminiParsed": parsedAction,
+            "debug_info": {
+                "action": action,
+                "action_type": type(action).__name__,
+                "known_actions": list(known_actions)
+            }
         }), 400
 
     try:
@@ -62,8 +77,13 @@ def voice_command():
             if not imageBytes:
                 return jsonify({"error": "No image provided for brightness"}), 400
             result = brightness(imageBytes, level)
+        elif action == "contrast":
+            level = parsedAction.get("level", 1.0)
+            if not imageBytes:
+                return jsonify({"error": "No image provided for contrast"}), 400
+            result = contrast(imageBytes, level)
         else:
-            # This should not be reached due to earlier check
+
             return jsonify({
                 "error": "Unknown command after parsing.",
                 "originalCommand": commandText,

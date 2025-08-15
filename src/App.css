@@ -8,6 +8,8 @@
   min-height: 100vh;
 }
 
+/* removed topbar styles */
+
 /* Floating orbs background */
 #root::before,
 #root::after {
@@ -187,6 +189,7 @@
   overflow: visible;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  font-family: 'Orbitron', sans-serif;
 }
 
 .button::before {
@@ -253,19 +256,23 @@
 /* Fixed button toolbar at bottom */
 .btn {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 1rem;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(96vw, 980px);
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: center;
   gap: 0.5rem;
   flex-wrap: wrap;
   z-index: 1000;
-  border-top: 1px solid rgba(99, 102, 241, 0.3);
-  max-height: 6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  max-height: 6.5rem;
 }
 
 .Upload-btn {
@@ -628,16 +635,17 @@
   }
   
   .btn {
-    padding: 0.75rem 0.5rem;
+    padding: 0.75rem;
     gap: 0.5rem;
-    max-height: 8rem;
+    max-height: 10rem;
     overflow-y: auto;
     overflow-x: hidden;
     flex-direction: column;
-    width: 100vw;
+    width: calc(100vw - 1rem);
     box-sizing: border-box;
-    left: 0;
-    right: 0;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
   
   /* 2x2 grid for main editing buttons */
@@ -769,6 +777,7 @@
   min-width: 8rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Orbitron', sans-serif;
 }
 
 #rotate-save-button:hover, #rotate-cancel-button:hover {
@@ -861,6 +870,46 @@
 
 .mic-button:hover svg {
     transform: scale(1.1);
+}
+
+/* Mic pulsing rings */
+.mic-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  transform: scale(1);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mic-button.active .ring1 {
+  animation: micPulse 1.6s ease-out infinite;
+}
+
+.mic-button.active .ring2 {
+  animation: micPulse 1.6s ease-out 0.2s infinite;
+}
+
+.mic-button.active .ring3 {
+  animation: micPulse 1.6s ease-out 0.4s infinite;
+}
+
+@keyframes micPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  70% {
+    transform: scale(1.8);
+    opacity: 0.0;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 @keyframes moveRainbowShadow {

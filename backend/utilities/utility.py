@@ -3,16 +3,21 @@ import json
 import os
 import base64
 try:
-    import requests  # optional for text-to-image
+    import requests 
 except Exception:
     requests = None
 
 
-api_key = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY")
-genai.configure(api_key=api_key)
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key or api_key == "YOUR_GEMINI_API_KEY":
+    print("Warning: GEMINI_API_KEY not set or invalid. Will use fallback parsing.")
+    api_key = None
+else:
+    genai.configure(api_key=api_key)
 STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
 
-VALID_ACTIONS = {"rotate", "crop", "blur", "brightness"}
+# Include all actions supported by the voice command endpoint
+VALID_ACTIONS = {"rotate", "crop", "blur", "brightness", "contrast", "generate"}
 
 def validate_action_params(action, data):
     if action == "rotate":
@@ -23,6 +28,11 @@ def validate_action_params(action, data):
         return isinstance(data.get("radius"), (int, float))
     if action == "brightness":
         return isinstance(data.get("level"), (int, float))
+    if action == "contrast":
+        return isinstance(data.get("level"), (int, float))
+    if action == "generate":
+        prompt = data.get("prompt")
+        return isinstance(prompt, str) and len(prompt.strip()) > 0
     return False
 
 def parse_command_with_gemini(user_input):
@@ -30,6 +40,11 @@ def parse_command_with_gemini(user_input):
     Uses Gemini to parse a user command for photo editing and returns a validated action dict.
     Supported actions: rotate, crop, blur, brightness, generate.
     """
+
+    if not api_key:
+        print("No Gemini API key available, using fallback parser")
+        return parse_command_simple(user_input)
+    
     # Try Gemini first, fallback to simple parsing if API key is invalid
     try:
         # Gemini prompt to parse voice commands for photo editing and generation
@@ -92,7 +107,26 @@ Only respond with valid JSON. No explanation. No markdown.
         response_text = response.text.strip()
         print(f"Gemini raw response: {response_text}")
 
-        data = json.loads(response_text)
+        # Be tolerant to occasional code-fence wrapping or extra text
+        cleaned = response_text
+        if cleaned.startswith("```"):
+            # Remove leading ``` and optional language, then strip trailing ```
+            parts = cleaned.split("\n", 1)
+            cleaned = parts[1] if len(parts) > 1 else cleaned
+            if cleaned.endswith("```"):
+                cleaned = cleaned[: -3]
+            cleaned = cleaned.strip()
+        # If still not pure JSON, attempt to extract JSON object boundaries
+        try:
+            data = json.loads(cleaned)
+        except Exception:
+            start = cleaned.find("{")
+            end = cleaned.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                candidate = cleaned[start:end+1]
+                data = json.loads(candidate)
+            else:
+                raise
         action = data.get("action", "unknown")
 
         if action not in VALID_ACTIONS or not validate_action_params(action, data):
@@ -111,11 +145,12 @@ def parse_command_simple(user_input):
     Simple fallback parser for basic voice commands when Gemini is unavailable.
     """
     input_lower = user_input.lower().strip()
+    print(f"Fallback parser processing: '{user_input}' -> '{input_lower}'")
     
     # Rotate commands
     if "rotate" in input_lower:
         import re
-        angle_match = re.search(r'(\d+)', input_lower)
+        angle_match = re.search(r'(-?\d+)', input_lower)
         if angle_match:
             angle = int(angle_match.group(1))
             return {"action": "rotate", "angle": angle}
@@ -123,29 +158,55 @@ def parse_command_simple(user_input):
     # Blur commands
     if "blur" in input_lower:
         import re
-        radius_match = re.search(r'(\d+)', input_lower)
+        radius_match = re.search(r'(-?\d+)', input_lower)
         if radius_match:
             radius = int(radius_match.group(1))
             return {"action": "blur", "radius": radius}
     
     # Brightness commands
-    if "brightness" in input_lower:
+    if "brightness" in input_lower or "brighten" in input_lower:
         import re
         level_match = re.search(r'(\d+)', input_lower)
         if level_match:
             level = int(level_match.group(1)) / 100.0
             return {"action": "brightness", "level": level}
+
+    # Contrast commands
+    if "contrast" in input_lower:
+        import re
+        level_match = re.search(r'(\d+)', input_lower)
+        if level_match:
+            level = int(level_match.group(1)) / 100.0
+            return {"action": "contrast", "level": level}
     
+    # Crop commands (expects phrases like: crop left 10 top 20 right 30 bottom 40)
+    if "crop" in input_lower:
+        import re
+        coords = {}
+        for key in ["left", "top", "right", "bottom"]:
+            match = re.search(rf"{key}[^0-9-]*(-?\\d+)", input_lower)
+            if match:
+                coords[key] = int(match.group(1))
+        if all(k in coords for k in ["left", "top", "right", "bottom"]):
+            return {
+                "action": "crop",
+                "left": coords["left"],
+                "top": coords["top"],
+                "right": coords["right"],
+                "bottom": coords["bottom"],
+            }
+
     # Generate commands
-    if "generate" in input_lower or "create" in input_lower:
-        # Extract everything after "generate" or "create"
-        for keyword in ["generate", "create"]:
+    if "generate" in input_lower or "create" in input_lower or "make" in input_lower:
+        # Extract everything after the first keyword
+        for keyword in ["generate", "create", "make"]:
             if keyword in input_lower:
                 prompt_start = input_lower.find(keyword) + len(keyword)
                 prompt = user_input[prompt_start:].strip()
                 if prompt:
                     return {"action": "generate", "prompt": prompt}
     
+    print(f"Fallback parser: no match found for '{input_lower}'")
     return {"action": "unknown"}
 
 def generate_image_from_prompt(prompt: str) -> bytes:
