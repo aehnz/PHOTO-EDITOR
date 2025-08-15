@@ -26,6 +26,8 @@ function App() {
     let [rotateDegree, setRotateDegree] = useState(0);
     let [micAnimationActive, setMicAnimationActive] = useState(false);
     let [isListening, setIsListening] = useState(false);
+    let [brightnessMode, setBrightnessMode] = useState(false);
+    let [brightnessValue, setBrightnessValue] = useState(100); // 100% is normal brightness
     const recognitionRef = useRef(null);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
@@ -52,6 +54,8 @@ function App() {
         setContrastValue(100);
         setRotateMode(false);
         setRotateDegree(0);
+        setBrightnessMode(false);
+        setBrightnessValue(100);
     }
 
     function enableCropMode(){
@@ -72,6 +76,8 @@ function App() {
             enableBlurMode();
         } else if(action === 'Contrast') {
             enableContrastMode();
+        } else if(action === 'Brightness') {
+            enableBrightnessMode();
         } else if(action === 'Rotate') {
             enableRotateMode();
         } else {
@@ -321,6 +327,43 @@ function App() {
         setRotateDegree(parseInt(e.target.value));
     }
 
+    function enableBrightnessMode(){
+        if(!hasImage) {
+            alert("Please upload an image first before applying brightness!");
+            return;
+        }
+        setBrightnessMode(true);
+    }
+
+    function cancelBrightness(){
+        setBrightnessMode(false);
+        setBrightnessValue(100); // Reset to default (100% = normal)
+    }
+
+    function handleBrightnessChange(e){
+        setBrightnessValue(parseInt(e.target.value));
+    }
+
+    function saveBrightness(){
+        // Create a canvas to apply brightness to the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.querySelector('.uploaded-image');
+        // Set canvas dimensions to match image
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        // Apply brightness filter and draw image
+        ctx.filter = `brightness(${brightnessValue}%)`;
+        ctx.drawImage(img, 0, 0);
+        // Convert canvas to blob and update image
+        canvas.toBlob((blob) => {
+            const newImageUrl = URL.createObjectURL(blob);
+            setImageSrc(newImageUrl);
+            setBrightnessMode(false);
+            setBrightnessValue(100); // Reset to default
+        }, 'image/png');
+    }
+
     // Universal handlers for both mouse and touch events
     const getEventCoordinates = (e) => {
         if (e.touches && e.touches.length > 0) {
@@ -509,7 +552,7 @@ function App() {
                         alt="uploaded Image" 
                         className="uploaded-image"
                         style={{
-                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''}`.trim(),
+                            filter: `${blurMode ? `blur(${blurIntensity}px)` : ''} ${contrastMode ? `contrast(${contrastValue}%)` : ''} ${brightnessMode ? `brightness(${brightnessValue}%)` : ''}`.trim(),
                             transform: rotateMode ? `rotate(${rotateDegree}deg)` : undefined
                         }}
                     />
@@ -580,11 +623,12 @@ function App() {
         </div>
 
         <div className="btn">
-            {!cropMode && !blurMode && !contrastMode && !rotateMode ? (
+            {!cropMode && !blurMode && !contrastMode && !rotateMode && !brightnessMode ? (
                 <div className="button-grid">
                     <Button name="Crop" onClick={enableCropMode} disabled={!hasImage}/>
                     <Button name="Blur" onClick={() => handleEditAction("Blur")} disabled={!hasImage}/>
                     <Button name="Contrast" onClick={() => handleEditAction("Contrast")} disabled={!hasImage}/>
+                    <Button name="Brightness" onClick={() => handleEditAction("Brightness")} disabled={!hasImage}/>
                     <Button name="Rotate" onClick={() => handleEditAction("Rotate")} disabled={!hasImage}/>
                 </div>
             ) : cropMode ? (
@@ -656,11 +700,31 @@ function App() {
                         <button  className="button" onClick={cancelRotate}>Cancel</button>
                     </div>
                 </>
+            ) : brightnessMode ? (
+                <>
+                    <div className="brightness-controls">
+                        <label htmlFor="brightness-slider" className="brightness-label">
+                            Brightness: {brightnessValue}%
+                        </label>
+                        <input 
+                            type="range" 
+                            id="brightness-slider"
+                            min="0" 
+                            max="200" 
+                            value={brightnessValue}
+                            onChange={handleBrightnessChange}
+                            className="brightness-slider"
+                        />
+                    </div>
+                    <div className="button-row">
+                        <Button name="Save Brightness" onClick={saveBrightness}/>
+                        <Button name="Cancel" onClick={cancelBrightness}/>
+                    </div>
+                </>
             ) : null}
         </div>
 
-        {/* Floating Mic Button */
-        }
+        {/* Floating Mic Button */}
         <div className="mic-button-container">
             <button 
                 className={`mic-button ${micAnimationActive ? 'active' : ''}`}
