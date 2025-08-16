@@ -562,15 +562,8 @@ function PhotoEditor() {
 
     return (
     <>
-        {/* Floating orbs */}
-        <div className="orb orb1"></div>
-        <div className="orb orb2"></div>
-        <div className="orb orb3"></div>
-        <div className="orb orb4"></div>
-        <div className="orb orb5"></div>
-        <div className="orb orb6"></div>
-        <div className="orb orb7"></div>
-        <div className="orb orb8"></div>
+        {/* Editor Background - Same as landing page */}
+        <div className="editor-background"></div>
 
         {/* Close (X) button in top-left */}
         {hasImage && imageSrc && (
@@ -774,7 +767,7 @@ function PhotoEditor() {
         {/* Floating Mic Button */}
         <div className="mic-button-container">
             <button 
-                className={`mic-button ${micAnimationActive ? 'active' : ''}`}
+                className={`mic-button ${micAnimationActive ? 'active' : ''} ${hasImage ? 'has-file' : ''}`}
                 title="Voice Command"
                 onClick={handleMicClick}
             >
