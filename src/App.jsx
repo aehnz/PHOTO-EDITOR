@@ -1,33 +1,80 @@
 import Button from "./Button.jsx"
 import InputFile from "./inputFile.jsx"
 import {useState, useRef} from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import './App.css'
 
-function App() {
+function LandingPage({ onStartEditing }) {
+  return (
+    <motion.div
+      className="landing-page"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <motion.div
+        className="landing-content"
+        initial={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -50 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.h1
+          className="app-title"
+          initial={{ scale: 1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          VoxEdit
+        </motion.h1>
+        <motion.p
+          className="app-description"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
+          AI Voice Powered Photo Editor
+        </motion.p>
+        <motion.button
+          className="start-button"
+          onClick={onStartEditing}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Start Editing
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  );
+}
 
-    let [hasImage,setHasImage] = useState(false);
-    let [imageSrc, setImageSrc] = useState(null);
-    let [cropMode, setCropMode] = useState(false);
-    let [cropArea, setCropArea] = useState({
+function PhotoEditor() {
+
+    const [hasImage,setHasImage] = useState(false);
+    const [imageSrc, setImageSrc] = useState(null);
+    const [cropMode, setCropMode] = useState(false);
+    const [cropArea, setCropArea] = useState({
         x: 50,
         y: 50,
         width: 200,
         height: 150
     });
-    let [isDragging, setIsDragging] = useState(false);
-    let [isResizing, setIsResizing] = useState(false);
-    let [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    let [resizeHandle, setResizeHandle] = useState(null);
-    let [blurMode, setBlurMode] = useState(false);
-    let [blurIntensity, setBlurIntensity] = useState(5);
-    let [contrastMode, setContrastMode] = useState(false);
-    let [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
-    let [rotateMode, setRotateMode] = useState(false);
-    let [rotateDegree, setRotateDegree] = useState(0);
-    let [micAnimationActive, setMicAnimationActive] = useState(false);
-    let [isListening, setIsListening] = useState(false);
-    let [brightnessMode, setBrightnessMode] = useState(false);
-    let [brightnessValue, setBrightnessValue] = useState(100); // 100% is normal brightness
+    const [isDragging, setIsDragging] = useState(false);
+    const [isResizing, setIsResizing] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [resizeHandle, setResizeHandle] = useState(null);
+    const [blurMode, setBlurMode] = useState(false);
+    const [blurIntensity, setBlurIntensity] = useState(5);
+    const [contrastMode, setContrastMode] = useState(false);
+    const [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
+    const [rotateMode, setRotateMode] = useState(false);
+    const [rotateDegree, setRotateDegree] = useState(0);
+    const [micAnimationActive, setMicAnimationActive] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [brightnessMode, setBrightnessMode] = useState(false);
+    const [brightnessValue, setBrightnessValue] = useState(100); // 100% is normal brightness
     const recognitionRef = useRef(null);
 
     function handleChange(e){ // to re-render the screen when the image is uploaded
@@ -696,8 +743,8 @@ function App() {
                         />
                     </div>
                     <div className="button-row">
-                        <button  className="button" onClick={saveRotate}>Save</button>
-                        <button  className="button" onClick={cancelRotate}>Cancel</button>
+                        <Button name="Save" onClick={saveRotate}/>
+                        <Button name="Cancel" onClick={cancelRotate}/>
                     </div>
                 </>
             ) : brightnessMode ? (
@@ -750,6 +797,35 @@ function App() {
 
     </>
   )
+}
+
+function App() {
+  const [showEditor, setShowEditor] = useState(false);
+
+  const handleStartEditing = () => {
+    setShowEditor(true);
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      {!showEditor ? (
+        <LandingPage key="landing" onStartEditing={handleStartEditing} />
+      ) : (
+        <motion.div
+          key="editor"
+          initial={{ y: "100vh", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "100vh", opacity: 0 }}
+          transition={{ 
+            duration: 1.2, 
+            ease: [0.25, 0.46, 0.45, 0.94] 
+          }}
+        >
+          <PhotoEditor />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 export default App

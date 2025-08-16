@@ -1027,4 +1027,152 @@
   }
 }
 
+/* Landing Page Styles */
+.landing-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    linear-gradient(135deg, #000011 0%, #0a0a1a 25%, #0a0a1a 50%, #0a0a1a 75%, #000011 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Animated Tech Elements */
+.landing-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Circuit patterns */
+    linear-gradient(90deg, transparent 0%, rgba(255, 248, 230, 0.04) 50%, transparent 100%),
+    linear-gradient(0deg, transparent 0%, rgba(255, 248, 230, 0.04) 50%, transparent 100%),
+    /* Grid lines */
+    linear-gradient(90deg, rgba(255, 248, 230, 0.03) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 248, 230, 0.03) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  animation: gridMove 20s linear infinite;
+  z-index: 1;
+}
+
+.landing-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Scanning lines */
+    linear-gradient(90deg, transparent 0%, rgba(255, 248, 230, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: scanLine 3s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* Animations */
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(20px, 20px); }
+}
+
+@keyframes scanLine {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+.landing-content {
+  text-align: center;
+  color: white;
+  z-index: 10;
+  position: relative;
+}
+
+.app-title {
+  font-family: 'Anurati', monospace;
+  font-size: 4.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #fffaf0, #fff8e6, #fff5e6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+.app-description {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin: 0 0 3rem 0;
+  opacity: 0.9;
+  letter-spacing: 0.05em;
+  color: #fff8e6;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.start-button {
+  background: linear-gradient(135deg, #fffaf0, #fff8e6);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: 'Anurati', monospace;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border: 2px solid #fffaf0;
+  transition: all 0.3s ease;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.start-button:hover::before {
+  left: 100%;
+}
+
+.start-button:hover {
+  background: linear-gradient(135deg, #fff8e6, #fff5e6);
+  box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.start-button:active {
+  transform: translateY(0);
+}
+
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+  50% { text-shadow: 0 0 50px rgba(255, 215, 0, 0.7); }
+}
+
 
