@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, send_file, jsonify
-from backend.functions.rotate import rotate
-from backend.functions.crop import crop
-from backend.functions.blur import blur
-from backend.functions.brightness import brightness
+from functions.rotate import rotate
+from functions.crop import crop
+from functions.blur import blur
+from functions.brightness import brightness
 from flask_cors import CORS
 import io
 import logging
@@ -15,8 +15,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Importing routes 
-from backend.routes import voiceCommand
-from backend.routes.voiceCommand import voice_command_bp
+from routes import voiceCommand
+from routes.voiceCommand import voice_command_bp
 
 app.register_blueprint(voice_command_bp)
 
