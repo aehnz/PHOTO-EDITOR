@@ -7,6 +7,7 @@ AI powered voice web-based photo editor for basic image editing tasks.
 
 - **Picture Manipulation:** Blurs,Crops,Rotates,Increases/Decreases Contrast and Brightness.
 - **Intuitive UI:** Simple buttons for editing actions.
+- **Voice Controlled Editing System With AI Integrated:** You Speak and the Editor edits the picture for you on its own.
 
 ## Getting Started
 
