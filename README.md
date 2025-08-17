@@ -19,7 +19,7 @@ AI powered voice web-based photo editor for basic image editing tasks.
 1. Clone the repository:
    ```
    git clone <your-repo-url>
-   cd PHOTO-EDITOR
+   cd VOX-EDIT
    ```
 2. Install dependencies:
    ```
