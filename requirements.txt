@@ -1,39 +1,32 @@
-# requirements.txt
+# Core Flask Framework
+Flask==3.0.0
+flask-cors==4.0.0
 
-# Backend dependencies
-Flask
-Flask-Cors
+# Image Processing
+Pillow==10.1.0
 
-# Image processing
-Pillow
+# AI/ML Integration
+google-generativeai==0.3.2
 
-# If you use environment variables
-python-dotenv
+# HTTP Requests
+requests==2.31.0
 
-# For voice recognition (optional, if handled server-side)
-SpeechRecognition
+# Environment Variables
+python-dotenv==1.0.0
 
+# Production Server (optional - for deployment)
+# gunicorn==21.2.0
 
-#For Testing backend you can use
-Curl
-#OR
-PostMan
+# Enhanced Flask Features (optional)
+# Werkzeug==3.0.1
 
-# package.json (Frontend - Node.js/React)
-# This is managed separately, but here are typical dependencies:
+# Development and Testing (optional)
+# Uncomment if needed for development
+# pytest==7.4.3
+# pytest-flask==1.3.0
+# black==23.11.0
+# flake8==6.1.0
 
-{
-  "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "^5.0.0",
-    "@tensorflow-models/body-pix": "^2.0.5",
-    "@tensorflow/tfjs": "^4.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.0.0"
-  }
-}
-
-#For AI use API of
-Gemini
+# Additional Utilities (optional)
+# python-multipart==0.0.6  # For better file upload handling
+# werkzeug==3.0.1          # Enhanced Flask utilities
