@@ -15,7 +15,7 @@ requests==2.31.0
 python-dotenv==1.0.0
 
 # Production Server (optional - for deployment)
-# gunicorn==21.2.0
+gunicorn==21.2.0
 
 # Enhanced Flask Features (optional)
 # Werkzeug==3.0.1
