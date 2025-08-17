@@ -1,0 +1,39 @@
+# requirements.txt
+
+# Backend dependencies
+Flask
+Flask-Cors
+
+# Image processing
+Pillow
+
+# If you use environment variables
+python-dotenv
+
+# For voice recognition (optional, if handled server-side)
+SpeechRecognition
+
+
+#For Testing backend you can use
+Curl
+#OR
+PostMan
+
+# package.json (Frontend - Node.js/React)
+# This is managed separately, but here are typical dependencies:
+
+{
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "^5.0.0",
+    "@tensorflow-models/body-pix": "^2.0.5",
+    "@tensorflow/tfjs": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  }
+}
+
+#For AI use API of
+Gemini
