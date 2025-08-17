@@ -11,7 +11,7 @@ import logging
 
 voice_command_bp = Blueprint('voice_command_bp', __name__)
 
-# Set up logging
+# Setting up logging
 logging.basicConfig(level=logging.INFO)
 
 @voice_command_bp.route('/voice-command', methods=['POST'])
@@ -20,12 +20,12 @@ def voice_command():
     imageFile = request.files.get("image")
     imageBytes = imageFile.read() if imageFile else None
     
-    # Log the raw command for debugging
+
     logging.info(f"Raw voice command received: '{commandText}'")
     
     parsedAction = parse_command_with_gemini(commandText)
 
-    # Log the original command and Gemini's parsed response
+    
     logging.info(f"Voice command received: {commandText}")
     logging.info(f"Gemini parsed response: {parsedAction}")
     logging.info(f"Parsed action type: {type(parsedAction)}")

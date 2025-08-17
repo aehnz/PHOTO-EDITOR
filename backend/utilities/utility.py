@@ -16,7 +16,7 @@ else:
     genai.configure(api_key=api_key)
 STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
 
-# Include all actions supported by the voice command endpoint
+
 VALID_ACTIONS = {"rotate", "crop", "blur", "brightness", "contrast", "generate"}
 
 def validate_action_params(action, data):
@@ -45,9 +45,9 @@ def parse_command_with_gemini(user_input):
         print("No Gemini API key available, using fallback parser")
         return parse_command_simple(user_input)
     
-    # Try Gemini first, fallback to simple parsing if API key is invalid
+    
     try:
-        # Gemini prompt to parse voice commands for photo editing and generation
+        
         prompt = f"""
 You are a voice assistant for a photo editing app.
 
@@ -107,16 +107,16 @@ Only respond with valid JSON. No explanation. No markdown.
         response_text = response.text.strip()
         print(f"Gemini raw response: {response_text}")
 
-        # Be tolerant to occasional code-fence wrapping or extra text
+        
         cleaned = response_text
         if cleaned.startswith("```"):
-            # Remove leading ``` and optional language, then strip trailing ```
+            
             parts = cleaned.split("\n", 1)
             cleaned = parts[1] if len(parts) > 1 else cleaned
             if cleaned.endswith("```"):
                 cleaned = cleaned[: -3]
             cleaned = cleaned.strip()
-        # If still not pure JSON, attempt to extract JSON object boundaries
+        
         try:
             data = json.loads(cleaned)
         except Exception:
@@ -136,7 +136,7 @@ Only respond with valid JSON. No explanation. No markdown.
 
     except Exception as e:
         print(f"Gemini parsing error: {e}")
-        # Fallback to simple parsing
+        
         return parse_command_simple(user_input)
 
 
@@ -147,7 +147,7 @@ def parse_command_simple(user_input):
     input_lower = user_input.lower().strip()
     print(f"Fallback parser processing: '{user_input}' -> '{input_lower}'")
     
-    # Rotate commands
+    
     if "rotate" in input_lower:
         import re
         angle_match = re.search(r'(-?\d+)', input_lower)
@@ -155,7 +155,7 @@ def parse_command_simple(user_input):
             angle = int(angle_match.group(1))
             return {"action": "rotate", "angle": angle}
     
-    # Blur commands
+    
     if "blur" in input_lower:
         import re
         radius_match = re.search(r'(-?\d+)', input_lower)
@@ -163,7 +163,7 @@ def parse_command_simple(user_input):
             radius = int(radius_match.group(1))
             return {"action": "blur", "radius": radius}
     
-    # Brightness commands
+    
     if "brightness" in input_lower or "brighten" in input_lower:
         import re
         level_match = re.search(r'(\d+)', input_lower)
@@ -171,7 +171,7 @@ def parse_command_simple(user_input):
             level = int(level_match.group(1)) / 100.0
             return {"action": "brightness", "level": level}
 
-    # Contrast commands
+    
     if "contrast" in input_lower:
         import re
         level_match = re.search(r'(\d+)', input_lower)
@@ -179,7 +179,7 @@ def parse_command_simple(user_input):
             level = int(level_match.group(1)) / 100.0
             return {"action": "contrast", "level": level}
     
-    # Crop commands (expects phrases like: crop left 10 top 20 right 30 bottom 40)
+    
     if "crop" in input_lower:
         import re
         coords = {}
@@ -196,9 +196,9 @@ def parse_command_simple(user_input):
                 "bottom": coords["bottom"],
             }
 
-    # Generate commands
+    
     if "generate" in input_lower or "create" in input_lower or "make" in input_lower:
-        # Extract everything after the first keyword
+        
         for keyword in ["generate", "create", "make"]:
             if keyword in input_lower:
                 prompt_start = input_lower.find(keyword) + len(keyword)

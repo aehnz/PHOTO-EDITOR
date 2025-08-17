@@ -68,22 +68,22 @@ function PhotoEditor() {
     const [blurMode, setBlurMode] = useState(false);
     const [blurIntensity, setBlurIntensity] = useState(5);
     const [contrastMode, setContrastMode] = useState(false);
-    const [contrastValue, setContrastValue] = useState(100); // 100% is normal contrast
+    const [contrastValue, setContrastValue] = useState(100); 
     const [rotateMode, setRotateMode] = useState(false);
     const [rotateDegree, setRotateDegree] = useState(0);
     const [micAnimationActive, setMicAnimationActive] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [brightnessMode, setBrightnessMode] = useState(false);
-    const [brightnessValue, setBrightnessValue] = useState(100); // 100% is normal brightness
+    const [brightnessValue, setBrightnessValue] = useState(100); 
     const recognitionRef = useRef(null);
 
-    function handleChange(e){ // to re-render the screen when the image is uploaded
+    function handleChange(e){ 
         if(e.target.files.length > 0){
             const File = e.target.files[0];
-            const fileReader = new FileReader(); // creating a new File Reader instance
+            const fileReader = new FileReader(); 
 
             fileReader.onloadend = () => {
-                setImageSrc(fileReader.result) // convert the file in web displayable format
+                setImageSrc(fileReader.result) 
             }
 
             fileReader.readAsDataURL(File)
@@ -147,10 +147,10 @@ function PhotoEditor() {
 
     function cancelBlur(){
         setBlurMode(false);
-        setBlurIntensity(5); // Reset to default
+        setBlurIntensity(5); 
     }
 
-    // Utility function to convert dataURL to Blob
+
     function dataURLtoBlob(dataurl) {
         var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -160,7 +160,7 @@ function PhotoEditor() {
         return new Blob([u8arr], {type:mime});
     }
 
-    // Generic function to send image and operation to backend
+
     async function processImageOnBackend(operation, params = {}) {
         if (!imageSrc) return;
         const blob = dataURLtoBlob(imageSrc);
@@ -201,7 +201,7 @@ function PhotoEditor() {
     async function sendVoiceCommandToBackend(transcript) {
         const formData = new FormData();
         formData.append('command', transcript);
-        // Attach image if present to support edit actions; omit for generation
+        
         if (hasImage && imageSrc) {
             const blob = await buildImageBlobFromSrc();
             if (blob) formData.append('image', blob, 'image.png');
@@ -212,13 +212,13 @@ function PhotoEditor() {
                 body: formData
             });
             if (!response.ok) {
-                // Try to read JSON error message for better diagnostics
+                
                 let msg = 'Backend error';
                 try {
                     const data = await response.json();
                     msg = data?.error || JSON.stringify(data);
                 } catch (_) {
-                    // ignore parse errors
+                    
                 }
                 throw new Error(msg);
             }
@@ -236,7 +236,7 @@ function PhotoEditor() {
             alert('Speech Recognition not supported in this browser.');
             return;
         }
-        // If already listening, stop
+        
         if (recognitionRef.current && isListening) {
             try { recognitionRef.current.stop(); } catch(_) {}
             return;
@@ -268,22 +268,22 @@ function PhotoEditor() {
     }
 
     function saveBlur(){
-        // Create a canvas to apply blur to the image
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        // Set canvas dimensions to match image
+        
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        // Apply blur filter and draw image
+        
         ctx.filter = `blur(${blurIntensity}px)`;
         ctx.drawImage(img, 0, 0);
-        // Convert canvas to blob and update image
+        
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
             setImageSrc(newImageUrl);
             setBlurMode(false);
-            setBlurIntensity(5); // Reset to default
+            setBlurIntensity(5); 
         }, 'image/png');
     }
 
@@ -301,26 +301,26 @@ function PhotoEditor() {
 
     function cancelContrast(){
         setContrastMode(false);
-        setContrastValue(100); // Reset to default (100% = normal)
+        setContrastValue(100); 
     }
 
     function saveContrast(){
-        // Create a canvas to apply contrast to the image
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        // Set canvas dimensions to match image
+     
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        // Apply contrast filter and draw image
+        
         ctx.filter = `contrast(${contrastValue}%)`;
         ctx.drawImage(img, 0, 0);
-        // Convert canvas to blob and update image
+        
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
             setImageSrc(newImageUrl);
             setContrastMode(false);
-            setContrastValue(100); // Reset to default
+            setContrastValue(100); 
         }, 'image/png');
     }
 
@@ -338,35 +338,35 @@ function PhotoEditor() {
 
     function cancelRotate(){
         setRotateMode(false);
-        setRotateDegree(0); // Reset to default
+        setRotateDegree(0); 
     }
 
     function saveRotate(){
-        // Create a canvas to rotate the image
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        // Calculate new canvas dimensions for rotation
+        
         const radian = (rotateDegree * Math.PI) / 180;
         const sin = Math.abs(Math.sin(radian));
         const cos = Math.abs(Math.cos(radian));
         const newWidth = img.naturalWidth * cos + img.naturalHeight * sin;
         const newHeight = img.naturalWidth * sin + img.naturalHeight * cos;
-        // Set canvas dimensions
+        
         canvas.width = newWidth;
         canvas.height = newHeight;
-        // Move to center, rotate, then draw image
+        
         ctx.save();
         ctx.translate(newWidth / 2, newHeight / 2);
         ctx.rotate(radian);
         ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
         ctx.restore();
-        // Convert canvas to blob and update image
+        
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
             setImageSrc(newImageUrl);
             setRotateMode(false);
-            setRotateDegree(0); // Reset to default
+            setRotateDegree(0); 
         }, 'image/png');
     }
 
@@ -384,7 +384,7 @@ function PhotoEditor() {
 
     function cancelBrightness(){
         setBrightnessMode(false);
-        setBrightnessValue(100); // Reset to default (100% = normal)
+        setBrightnessValue(100); 
     }
 
     function handleBrightnessChange(e){
@@ -392,26 +392,26 @@ function PhotoEditor() {
     }
 
     function saveBrightness(){
-        // Create a canvas to apply brightness to the image
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        // Set canvas dimensions to match image
+        
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        // Apply brightness filter and draw image
+        
         ctx.filter = `brightness(${brightnessValue}%)`;
         ctx.drawImage(img, 0, 0);
-        // Convert canvas to blob and update image
+        
         canvas.toBlob((blob) => {
             const newImageUrl = URL.createObjectURL(blob);
             setImageSrc(newImageUrl);
             setBrightnessMode(false);
-            setBrightnessValue(100); // Reset to default
+            setBrightnessValue(100); 
         }, 'image/png');
     }
 
-    // Universal handlers for both mouse and touch events
+    
     const getEventCoordinates = (e) => {
         if (e.touches && e.touches.length > 0) {
             return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
@@ -419,7 +419,7 @@ function PhotoEditor() {
         return { clientX: e.clientX, clientY: e.clientY };
     };
 
-    // Drag and resize handlers
+    
     const handlePointerDown = (e, action, handle = null) => {
         e.preventDefault();
         const coords = getEventCoordinates(e);
@@ -482,7 +482,7 @@ function PhotoEditor() {
                         break;
                 }
                 
-                // Ensure crop area stays within bounds
+                
                 if (newArea.x + newArea.width > rect.width) {
                     newArea.width = rect.width - newArea.x;
                 }
@@ -503,19 +503,19 @@ function PhotoEditor() {
     };
 
     function saveCrop(){
-        // Create a canvas to crop the image
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = document.querySelector('.uploaded-image');
-        // Get the actual display dimensions and scale
+        
         const displayWidth = img.clientWidth;
         const displayHeight = img.clientHeight;
         const scaleX = img.naturalWidth / displayWidth;
         const scaleY = img.naturalHeight / displayHeight;
-        // Set canvas size to crop area
+        
         canvas.width = cropArea.width * scaleX;
         canvas.height = cropArea.height * scaleY;
-        // Draw cropped portion
+        
         ctx.drawImage(
             img,
             cropArea.x * scaleX, cropArea.y * scaleY,
@@ -523,7 +523,7 @@ function PhotoEditor() {
             0, 0,
             canvas.width, canvas.height
         );
-        // Convert canvas to data URL and update image
+        
         const croppedImageData = canvas.toDataURL();
         setImageSrc(croppedImageData);
         setCropMode(false);
