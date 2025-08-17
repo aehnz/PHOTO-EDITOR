@@ -65,7 +65,7 @@ PHOTO-EDITOR/
 ## Technologies Used
 
 - React (or your chosen frontend framework)
-- Node.js (for backend)
+- Flask (for backend)
 
 ## Contributing
 
