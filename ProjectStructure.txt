@@ -1,0 +1,26 @@
+VOX-EDIT/
+├── src/                    # Frontend React source code
+│   ├── App.jsx            # Main application component
+│   ├── App.css            # Main styles
+│   ├── Button.jsx         # Reusable button component
+│   ├── inputFile.jsx      # File upload component
+│   ├── main.jsx           # React entry point
+│   └── index.css          # Global styles
+├── backend/               # Python Flask backend
+│   ├── app.py             # Main Flask application
+│   ├── functions/         # Image processing functions
+│   │   ├── blur.py        # Blur effect implementation
+│   │   ├── brightness.py  # Brightness adjustment
+│   │   ├── contrast.py    # Contrast adjustment
+│   │   ├── crop.py        # Image cropping
+│   │   └── rotate.py      # Image rotation
+│   ├── routes/            # API routes
+│   │   └── voiceCommand.py # Voice command processing
+│   └── utilities/         # Utility functions
+│       └── utility.py     # AI integration and helpers
+├── public/                # Static assets
+├── package.json           # Frontend dependencies
+├── requirements.txt       # Backend dependencies
+├── vite.config.js         # Vite configuration
+└── README.md
+|__ ProjectStructure.txt # This File
