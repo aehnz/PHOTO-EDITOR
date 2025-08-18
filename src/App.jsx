@@ -171,7 +171,7 @@ function PhotoEditor() {
             formData.append(key, value);
         });
         try {
-            const response = await fetch('http://localhost:1949/process-image', {
+            const response = await fetch('https://vox-edit.onrender.com', {
                 method: 'POST',
                 body: formData
             });
