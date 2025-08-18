@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, send_file, jsonify
-from functions.rotate import rotate
-from functions.crop import crop
-from functions.blur import blur
-from functions.brightness import brightness
+from .functions.rotate import rotate
+from .functions.crop import crop
+from .functions.blur import blur
+from .functions.brightness import brightness
 from flask_cors import CORS
 import io
 import logging
