@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, send_file
-from utilities.utility import parse_command_with_gemini, generate_image_from_prompt
+from backend.utilities.utility import parse_command_with_gemini, generate_image_from_prompt
 from functions.rotate import rotate
 from functions.crop import crop
 from functions.blur import blur
