@@ -207,7 +207,7 @@ function PhotoEditor() {
             if (blob) formData.append('image', blob, 'image.png');
         }
         try {
-            const response = await fetch('http://localhost:1949/voice-command', {
+            const response = await fetch('https://vox-edit.onrender.com', {
                 method: 'POST',
                 body: formData
             });
